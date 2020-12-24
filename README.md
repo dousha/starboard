@@ -1,0 +1,3 @@
+# starboard
+
+Algorithm Prototyping Tool
