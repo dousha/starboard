@@ -1,42 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 
 <head>
-    <meta charset="utf-8">
-    <title>Starboard</title>
-    <link rel="stylesheet" href="assets/css/starboard.css">
-    <script src="assets/js/sketcher.js"></script>
-    <script src="assets/js/starboard.js"></script>
+	<meta charset="utf-8">
+	<title>Starboard</title>
+	<link rel="stylesheet" href="assets/css/starboard.css">
+	<script src="assets/js/sketcher.js"></script>
+	<script src="assets/js/starboard.js"></script>
 </head>
 
 <body>
-    <div class="wrapper">
-        <div class="head">
-            <div class="vertical-wrapper">
-                <span id="title">Title</span>
-            </div>
-            <div class="vertical-wrapper toolbar">
-                <button>Run</button>
-            </div>
-            <div class="vertical-wrapper">
-                <span id="status"></span>
-            </div>
-        </div>
-        <div class="board">
-            <div class="grip block" style="width: 100px; height: 80px">
-                <span>Grab</span>
-            </div>
-        </div>
-        <div class="console" id="console">
-            <div class="console-fold clickable" id="console-fold"></div>
-            <div class="console-content">
-                <div class="console-output">
-                    <pre id="console-output"></pre>
-                </div>
-            </div>
-        </div>
-        <div class="console-expand clickable" id="console-expand"></div>
-    </div>
+<div class="wrapper">
+	<div class="head">
+		<div class="vertical-wrapper">
+			<span id="title">Title</span>
+		</div>
+		<div class="vertical-wrapper toolbar">
+			<button>Run</button>
+		</div>
+		<div class="vertical-wrapper">
+			<span id="status"></span>
+		</div>
+	</div>
+	<div class="board">
+		<div class="grip block">
+			<div class="nodule-handle">
+				<div class="nodule-handle-content">
+					<span class="nodule-label">in1</span>
+					<span class="nodule-label">in2</span>
+					<span class="nodule-label">in3</span>
+				</div>
+			</div>
+			<div class="nodule-content">
+				<span class="nodule-name">Grab</span>
+				<span class="nodule-parameters">param=42</span>
+			</div>
+			<div class="nodule-handle">
+				<div class="nodule-handle-content">
+					<span class="nodule-label">out1</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="console" id="console">
+		<div class="console-fold clickable" id="console-fold"></div>
+		<div class="console-content">
+			<div class="console-output">
+				<pre id="console-output"></pre>
+			</div>
+		</div>
+	</div>
+	<div class="console-expand clickable" id="console-expand"></div>
+</div>
 </body>
 
 </html>
