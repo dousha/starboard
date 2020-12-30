@@ -1,12 +1,12 @@
-function drawBox() {
-	//
-}
-
 function Nodule() {
+	this.id = '';
 	this.name = '';
 	this.input = [];
 	this.output = [];
 	this.parameters = {};
+
+	this.x = 0;
+	this.y = 0;
 
 	this.drawParam = function () {
 		const label = document.createElement('span');
@@ -22,7 +22,7 @@ function Nodule() {
 			const node = document.createElement('span');
 			node.classList.add('nodule-label');
 			node.innerText = it.name;
-			console.debug(it);
+			installHandelEventListeners(node, it.name, this.id);
 			box.append(node);
 		});
 		return box;
@@ -46,7 +46,30 @@ function Nodule() {
 		leftHandle.append(this.drawIo(this.input));
 		rightHandle.append(this.drawIo(this.output));
 		outerBox.append(leftHandle, content, rightHandle);
+		outerBox.style.top = `${this.y}px`;
+		outerBox.style.left = `${this.x}px`;
+		outerBox.setAttribute('data-id', this.id);
+		installBlockEventListeners(outerBox, this.move.bind(this));
 		return outerBox;
+	};
+
+	this.move = function (x, y) {
+		this.x = x;
+		this.y = y;
+	};
+
+	this.loadFromObject = function (o) {
+		// TODO: type checking
+		Object.assign(this, o);
+	};
+}
+
+function Connection() {
+	this.from = '';
+	this.to = '';
+
+	this.draw = function () {
+
 	};
 
 	this.loadFromObject = function (o) {
@@ -56,27 +79,42 @@ function Nodule() {
 }
 
 function Sketch(name) {
-	this.vertices = [];
-	this.edges = [];
+	this.nodules = [];
+	this.connections = [];
 	this.name = name || 'New Sketch';
 
 	this.draw = function () {
-		// TODO
+		// TODO: load connections
+		return this.nodules.map(it => it.draw());
 	};
 
 	this.loadFromObject = function (obj) {
-		if ('vertices' in obj && 'edges' in obj && 'name' in obj) {
+		if ('nodules' in obj && 'connections' in obj) {
 			Object.assign(this, obj);
+			this.nodules = this.nodules.map(it => {
+				const nodule = new Nodule();
+				nodule.loadFromObject(it);
+				return nodule;
+			});
+			// TODO: connections may need to do the same
 		} else {
 			throw new Error('Invalid sketch');
 		}
 	};
 
+	this.compile = function () {
+		// TODO
+	};
+
+	this.run = function () {
+		// TODO
+	};
+
 	this.toObject = function () {
 		return {
 			name: this.name,
-			vertices: this.vertices,
-			edges: this.edges
+			nodules: this.nodules,
+			connections: this.connections
 		};
 	};
 }

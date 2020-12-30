@@ -136,6 +136,10 @@ body {
 	cursor: crosshair;
 }
 
+.nodule-label:hover {
+	background-color: yellow;
+}
+
 .nodule-content {
 	display: flex;
 	flex-grow: 1;
@@ -147,4 +151,14 @@ body {
 .nodule-parameters {
 	font-family: 'JetBrains Mono', 'Consolas', 'Courier New', Courier, monospace;
 	font-size: 12px;
+}
+
+#live-line-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	margin: 0;
+	padding: 0;
 }

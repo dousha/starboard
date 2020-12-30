@@ -5,8 +5,10 @@
 	<meta charset="utf-8">
 	<title>Starboard</title>
 	<link rel="stylesheet" href="assets/css/starboard.css">
+	<script src="assets/js/utils.js"></script>
 	<script src="assets/js/sketcher.js"></script>
 	<script src="assets/js/starboard.js"></script>
+	<script src="assets/js/testing.js"></script>
 </head>
 
 <body>
@@ -22,26 +24,7 @@
 			<span id="status"></span>
 		</div>
 	</div>
-	<div id="board" class="board">
-		<div class="grip block">
-			<div class="nodule-handle">
-				<div class="nodule-handle-content">
-					<span class="nodule-label">in1</span>
-					<span class="nodule-label">in2</span>
-					<span class="nodule-label">in3</span>
-				</div>
-			</div>
-			<div class="nodule-content">
-				<span class="nodule-name">Grab</span>
-				<span class="nodule-parameters">param=42</span>
-			</div>
-			<div class="nodule-handle">
-				<div class="nodule-handle-content">
-					<span class="nodule-label">out1</span>
-				</div>
-			</div>
-		</div>
-	</div>
+	<div id="board" class="board"></div>
 	<div class="console" id="console">
 		<div class="console-fold clickable" id="console-fold"></div>
 		<div class="console-content">
@@ -52,6 +35,9 @@
 	</div>
 	<div class="console-expand clickable" id="console-expand"></div>
 </div>
+<svg id="live-line-container">
+	<line id="live-line" x1="0" x2="0" y1="0" y2="0" stroke="black" stroke-width="2"></line>
+</svg>
 </body>
 
 </html>
