@@ -8,6 +8,8 @@ function Nodule() {
 	this.x = 0;
 	this.y = 0;
 
+	this.activeConnections = [];
+
 	this.drawParam = function () {
 		const label = document.createElement('span');
 		label.classList.add('nodule-parameters');
@@ -54,8 +56,17 @@ function Nodule() {
 	};
 
 	this.move = function (x, y) {
-		this.x = x;
-		this.y = y;
+		if (!isNaN(x) && !isNaN(y)) {
+			this.x = x;
+			this.y = y;
+		}
+	};
+
+	this.save = function () {
+		let out = {};
+		Object.assign(out, this);
+		delete out.activeConnections;
+		return out;
 	};
 
 	this.loadFromObject = function (o) {
@@ -65,8 +76,10 @@ function Nodule() {
 }
 
 function Connection() {
-	this.from = '';
-	this.to = '';
+	this.fromModuleId = '';
+	this.fromModulePort = '';
+	this.toModuleId = '';
+	this.toModulePort = '';
 
 	this.draw = function () {
 
@@ -86,6 +99,35 @@ function Sketch(name) {
 	this.draw = function () {
 		// TODO: load connections
 		return this.nodules.map(it => it.draw());
+	};
+
+	this.makeConnection = function (from, to) {
+		// `from` must be an output port
+		const fromParts = from.split('.');
+		const toParts = to.split('.');
+		const fromNoduleIndex = this.nodules.findIndex(x => x.id === fromParts[0]);
+		if (fromNoduleIndex < 0) {
+			console.error(from, 'not found');
+			return false;
+		}
+		const toNoduleIndex = this.nodules.findIndex(x => x.id === toParts[0]);
+		if (toNoduleIndex < 0) {
+			console.error(to, 'not found');
+			return false;
+		}
+		const fromNodule = this.nodules[fromNoduleIndex];
+		const toNodule = this.nodules[toNoduleIndex];
+		const fromPortIndex = fromNodule.output.findIndex(x => x.name === fromParts[1]);
+		if (fromPortIndex < 0) {
+			console.error(from, 'port not found');
+			return false;
+		}
+		const toPortIndex = toNodule.input.findIndex(x => x.name === toParts[1]);
+		if (toPortIndex < 0) {
+			console.error(to, 'port not found');
+			return false;
+		}
+		// everything checks out!
 	};
 
 	this.loadFromObject = function (obj) {
