@@ -133,6 +133,17 @@ function installBlockEventListeners(e, cb = (x, y) => {
 
 	function dragMouseMove(event) {
 		event.preventDefault();
+		updatePosition(event);
+	}
+
+	function dragMouseUp(event) {
+		updatePosition(event);
+		document.removeEventListener('mouseup', dragMouseUp);
+		document.removeEventListener('mousemove', dragMouseMove);
+		e.style.cursor = "grab";
+	}
+
+	function updatePosition(event) {
 		dX = lastX - event.clientX;
 		dY = lastY - event.clientY;
 		lastX = event.clientX;
@@ -142,12 +153,6 @@ function installBlockEventListeners(e, cb = (x, y) => {
 		cb(x, y);
 		e.style.top = `${y}px`;
 		e.style.left = `${x}px`;
-	}
-
-	function dragMouseUp() {
-		document.removeEventListener('mouseup', dragMouseUp);
-		document.removeEventListener('mousemove', dragMouseMove);
-		e.style.cursor = "grab";
 	}
 
 	function doubleClick(e) {

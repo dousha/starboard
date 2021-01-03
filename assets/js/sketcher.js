@@ -60,8 +60,12 @@ function Nodule() {
 		if (!isNaN(x) && !isNaN(y)) {
 			this.x = x;
 			this.y = y;
-			this.activeConnections.forEach(it => it.update());
+			this.updateConnections();
 		}
+	};
+
+	this.updateConnections = function () {
+		this.activeConnections.forEach(it => it.update());
 	};
 
 	this.save = function () {
@@ -121,10 +125,10 @@ function Connection() {
 	};
 
 	this.updatePosition = function (element, fromRect, toRect) {
-		const x1 = Math.floor(fromRect.x + fromRect.width / 2);
-		const y1 = Math.floor(fromRect.y + fromRect.height / 2);
-		const x2 = Math.floor(toRect.x + fromRect.width / 2);
-		const y2 = Math.floor(toRect.y + fromRect.height / 2);
+		const x1 = Math.round(fromRect.x + fromRect.width / 2);
+		const y1 = Math.round(fromRect.y + fromRect.height / 2);
+		const x2 = Math.round(toRect.x + fromRect.width / 2);
+		const y2 = Math.round(toRect.y + fromRect.height / 2);
 		element.setAttribute('x1', x1.toString());
 		element.setAttribute('y1', y1.toString());
 		element.setAttribute('x2', x2.toString());
