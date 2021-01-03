@@ -17,14 +17,15 @@ function Nodule() {
 		return label;
 	};
 
-	this.drawIo = function (xs) {
+	this.drawIo = function (xs, type) {
 		const box = document.createElement('div');
 		box.classList.add('nodule-handle-content');
 		xs.forEach(it => {
 			const node = document.createElement('span');
 			node.classList.add('nodule-label');
 			node.innerText = it.name;
-			installHandelEventListeners(node, it.name, this.id);
+			node.setAttribute('data-name', `${type}-${it.name}`);
+			installPortEventListeners(node, it.name, this.id);
 			box.append(node);
 		});
 		return box;
@@ -45,8 +46,8 @@ function Nodule() {
 		nameLabel.innerText = this.name;
 		const paramLabel = this.drawParam();
 		content.append(nameLabel, paramLabel);
-		leftHandle.append(this.drawIo(this.input));
-		rightHandle.append(this.drawIo(this.output));
+		leftHandle.append(this.drawIo(this.input, 'input'));
+		rightHandle.append(this.drawIo(this.output, 'output'));
 		outerBox.append(leftHandle, content, rightHandle);
 		outerBox.style.top = `${this.y}px`;
 		outerBox.style.left = `${this.x}px`;
@@ -59,13 +60,14 @@ function Nodule() {
 		if (!isNaN(x) && !isNaN(y)) {
 			this.x = x;
 			this.y = y;
+			this.activeConnections.forEach(it => it.update());
 		}
 	};
 
 	this.save = function () {
 		let out = {};
 		Object.assign(out, this);
-		delete out.activeConnections;
+		out.activeConnections = out.activeConnections.map(x => x.id);
 		return out;
 	};
 
@@ -76,13 +78,57 @@ function Nodule() {
 }
 
 function Connection() {
+	this.id = randomName();
 	this.fromModuleId = '';
 	this.fromModulePort = '';
 	this.toModuleId = '';
 	this.toModulePort = '';
 
-	this.draw = function () {
+	this.update = function () {
+		const element = document.getElementById(this.id);
+		const fromModuleDom = document.querySelector(`[data-id="${this.fromModuleId}"]`);
+		const toModuleDom = document.querySelector(`[data-id="${this.toModuleId}"]`);
+		const fromModulePortDom = fromModuleDom.querySelector(`[data-name="output-${this.fromModulePort}"]`);
+		const toModulePortDom = toModuleDom.querySelector(`[data-name="input-${this.toModulePort}"]`);
+		const fromRect = fromModulePortDom.getClientRects()[0];
+		const toRect = toModulePortDom.getClientRects()[0];
+		this.updatePosition(element, fromRect, toRect);
+	};
 
+	this.draw = function () {
+		const element = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		element.setAttribute('id', this.id);
+		element.setAttribute('stroke', 'black');
+		element.setAttribute('stroke-width', '2');
+		element.classList.add('connection');
+		const fromModuleDom = document.querySelector(`[data-id="${this.fromModuleId}"]`);
+		const toModuleDom = document.querySelector(`[data-id="${this.toModuleId}"]`);
+		if (fromModuleDom == null || toModuleDom == null) {
+			console.error('Cannot draw line from', this.fromModuleId, this.fromModulePort, 'to', this.toModuleId, this.toModulePort);
+			return undefined;
+		}
+		const fromModulePortDom = fromModuleDom.querySelector(`[data-name="output-${this.fromModulePort}"]`);
+		const toModulePortDom = toModuleDom.querySelector(`[data-name="input-${this.toModulePort}"]`);
+		if (fromModulePortDom == null || toModulePortDom == null) {
+			console.error('Cannot draw line from', this.fromModuleId, this.fromModulePort, 'to', this.toModuleId, this.toModulePort);
+			return undefined;
+		}
+		const fromRect = fromModulePortDom.getClientRects()[0];
+		const toRect = toModulePortDom.getClientRects()[0];
+		this.updatePosition(element, fromRect, toRect);
+		installConnectionEventListeners(element);
+		return element;
+	};
+
+	this.updatePosition = function (element, fromRect, toRect) {
+		const x1 = Math.floor(fromRect.x + fromRect.width / 2);
+		const y1 = Math.floor(fromRect.y + fromRect.height / 2);
+		const x2 = Math.floor(toRect.x + fromRect.width / 2);
+		const y2 = Math.floor(toRect.y + fromRect.height / 2);
+		element.setAttribute('x1', x1.toString());
+		element.setAttribute('y1', y1.toString());
+		element.setAttribute('x2', x2.toString());
+		element.setAttribute('y2', y2.toString());
 	};
 
 	this.loadFromObject = function (o) {
@@ -96,38 +142,80 @@ function Sketch(name) {
 	this.connections = [];
 	this.name = name || 'New Sketch';
 
-	this.draw = function () {
-		// TODO: load connections
+	this.drawNodules = function () {
 		return this.nodules.map(it => it.draw());
 	};
 
+	this.drawConnections = function () {
+		return this.connections.map(it => it.draw());
+	};
+
 	this.makeConnection = function (from, to) {
-		// `from` must be an output port
+		// `from` must be an output port, `to` must be an input port
 		const fromParts = from.split('.');
 		const toParts = to.split('.');
 		const fromNoduleIndex = this.nodules.findIndex(x => x.id === fromParts[0]);
 		if (fromNoduleIndex < 0) {
 			console.error(from, 'not found');
-			return false;
+			return undefined;
 		}
 		const toNoduleIndex = this.nodules.findIndex(x => x.id === toParts[0]);
 		if (toNoduleIndex < 0) {
 			console.error(to, 'not found');
-			return false;
+			return undefined;
 		}
 		const fromNodule = this.nodules[fromNoduleIndex];
 		const toNodule = this.nodules[toNoduleIndex];
 		const fromPortIndex = fromNodule.output.findIndex(x => x.name === fromParts[1]);
 		if (fromPortIndex < 0) {
 			console.error(from, 'port not found');
-			return false;
+			return undefined;
 		}
 		const toPortIndex = toNodule.input.findIndex(x => x.name === toParts[1]);
 		if (toPortIndex < 0) {
 			console.error(to, 'port not found');
-			return false;
+			return undefined;
+		}
+		// test if source port or the target port is occupied
+		const x = this.connections.findIndex(x => (x.fromModuleId === fromParts[0] && x.fromModulePort === fromParts[1]) || (x.toModuleId === toParts[0] && x.toModulePort === toParts[1]));
+		if (x >= 0) {
+			console.error('Port already occupied');
+			return undefined;
 		}
 		// everything checks out!
+		const conn = new Connection();
+		conn.fromModuleId = fromParts[0];
+		conn.fromModulePort = fromParts[1];
+		conn.toModuleId = toParts[0];
+		conn.toModulePort = toParts[1];
+		this.connections.push(conn);
+		fromNodule.activeConnections.push(conn);
+		toNodule.activeConnections.push(conn);
+		return conn;
+	};
+
+	this.breakConnection = function (id) {
+		const connectionIndex = this.connections.findIndex(x => x.id === id);
+		if (connectionIndex < 0) {
+			console.error(id, 'does not exist');
+			return true;
+		} else {
+			const connection = this.connections[connectionIndex];
+			const fromModuleIndex = this.nodules.findIndex(x => x.id === connection.fromModuleId);
+			const toModuleIndex = this.nodules.findIndex(x => x.id === connection.toModuleId);
+			const fromModule = this.nodules[fromModuleIndex];
+			const toModule = this.nodules[toModuleIndex];
+			const fromModuleActiveIndex = fromModule.activeConnections.findIndex(x => x.id === id);
+			const toModuleActiveIndex = toModule.activeConnections.findIndex(x => x.id === id);
+			if (fromModuleIndex >= 0) {
+				fromModule.activeConnections.splice(fromModuleActiveIndex, 1);
+			}
+			if (toModuleActiveIndex >= 0) {
+				toModule.activeConnections.splice(toModuleActiveIndex, 1);
+			}
+			this.connections.splice(connectionIndex, 1);
+			return true;
+		}
 	};
 
 	this.loadFromObject = function (obj) {
@@ -138,7 +226,11 @@ function Sketch(name) {
 				nodule.loadFromObject(it);
 				return nodule;
 			});
-			// TODO: connections may need to do the same
+			this.connections = this.connections.map(it => {
+				const connection = new Connection();
+				connection.loadFromObject(it);
+				return connection;
+			});
 		} else {
 			throw new Error('Invalid sketch');
 		}

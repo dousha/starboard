@@ -29,7 +29,7 @@ function show(e) {
 	e.style.display = 'block';
 }
 
-function installHandelEventListeners(e, name, parentName) {
+function installPortEventListeners(e, name, parentName) {
 	let lastX = 0, lastY = 0;
 
 	e.addEventListener('mousedown', dragMouseDown);
@@ -70,13 +70,47 @@ function installHandelEventListeners(e, name, parentName) {
 
 	function elementMouseUp(event) {
 		event.preventDefault();
-		console.debug(`Source port = ${window.sourcePort}, target port = ${parentName}.${name}`);
+		const toPortName = `${parentName}.${name}`;
+		console.debug(`Source port = ${window.sourcePort}, target port = ${toPortName}`);
+		if (window.sourcePort && window.sourcePort !== toPortName) {
+			if (!window.sketch) {
+				console.error('No sketch loaded');
+			} else {
+				const conn = window.sketch.makeConnection(window.sourcePort, toPortName);
+				if (conn != null) {
+					appendConnection(conn.draw());
+				}
+			}
+		}
 	}
 
 	function doubleClick(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		console.debug('Label double click');
+	}
+}
+
+function installConnectionEventListeners(e) {
+	e.addEventListener('mouseenter', hoverStart);
+	e.addEventListener('click', click);
+
+	function hoverStart(event) {
+		if (event.altKey) {
+			e.style.cursor = 'crosshair';
+		} else {
+			e.style.cursor = 'auto';
+		}
+	}
+
+	function click(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		if (event.altKey) {
+			if (window.sketch.breakConnection(e.id)) {
+				e.remove();
+			}
+		}
 	}
 }
 
@@ -145,9 +179,21 @@ function setBoard(xs) {
 	xs.forEach(x => board.append(x));
 }
 
+function setConnections(xs) {
+	const lines = document.getElementById('line-container');
+	clearElement(lines);
+	xs.forEach(x => lines.appendChild(x));
+}
+
+function appendConnection(x) {
+	document.getElementById('line-container').appendChild(x);
+}
+
 function loadSketch(sketch) {
+	window.sketch = sketch;
 	setTitle(sketch.name);
-	setBoard(sketch.draw());
+	setBoard(sketch.drawNodules());
+	setConnections(sketch.drawConnections());
 }
 
 function loadSketchFromJson(json) {
