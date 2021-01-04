@@ -24,6 +24,7 @@ function Nodule() {
 			const node = document.createElement('span');
 			node.classList.add('nodule-label');
 			node.innerText = it.name;
+			node.setAttribute('data-type', type);
 			node.setAttribute('data-name', `${type}-${it.name}`);
 			installPortEventListeners(node, it.name, this.id);
 			box.append(node);
@@ -89,22 +90,27 @@ function Connection() {
 	this.toModulePort = '';
 
 	this.update = function () {
-		const element = document.getElementById(this.id);
+		const elements = document.querySelectorAll(`[data-id="${this.id}"]`);
 		const fromModuleDom = document.querySelector(`[data-id="${this.fromModuleId}"]`);
 		const toModuleDom = document.querySelector(`[data-id="${this.toModuleId}"]`);
 		const fromModulePortDom = fromModuleDom.querySelector(`[data-name="output-${this.fromModulePort}"]`);
 		const toModulePortDom = toModuleDom.querySelector(`[data-name="input-${this.toModulePort}"]`);
 		const fromRect = fromModulePortDom.getClientRects()[0];
 		const toRect = toModulePortDom.getClientRects()[0];
-		this.updatePosition(element, fromRect, toRect);
+		elements.forEach(element => {
+			this.updatePosition(element, fromRect, toRect);
+		});
 	};
 
 	this.draw = function () {
-		const element = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-		element.setAttribute('id', this.id);
-		element.setAttribute('stroke', 'black');
-		element.setAttribute('stroke-width', '2');
-		element.classList.add('connection');
+		const shownElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		shownElement.setAttribute('data-id', this.id);
+		shownElement.setAttribute('stroke', 'black');
+		shownElement.setAttribute('stroke-width', '2');
+		const hiddenElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		hiddenElement.setAttribute('data-id', this.id);
+		hiddenElement.setAttribute('stroke', '#00000000');
+		hiddenElement.setAttribute('stroke-width', '10');
 		const fromModuleDom = document.querySelector(`[data-id="${this.fromModuleId}"]`);
 		const toModuleDom = document.querySelector(`[data-id="${this.toModuleId}"]`);
 		if (fromModuleDom == null || toModuleDom == null) {
@@ -119,9 +125,11 @@ function Connection() {
 		}
 		const fromRect = fromModulePortDom.getClientRects()[0];
 		const toRect = toModulePortDom.getClientRects()[0];
-		this.updatePosition(element, fromRect, toRect);
-		installConnectionEventListeners(element);
-		return element;
+		this.updatePosition(shownElement, fromRect, toRect);
+		this.updatePosition(hiddenElement, fromRect, toRect);
+		installConnectionEventListeners(shownElement);
+		installConnectionEventListeners(hiddenElement);
+		return [shownElement, hiddenElement];
 	};
 
 	this.updatePosition = function (element, fromRect, toRect) {
@@ -241,11 +249,44 @@ function Sketch(name) {
 	};
 
 	this.compile = function () {
-		// TODO
+		const terminalBlocks = this.nodules.filter(x => x.output.length < 1);
+		return terminalBlocks.map(it => this.compileNodule(it)).join(';');
+	};
+
+	this.compileNodule = function (nodule) {
+		const initial = nodule.name;
+		const params = JSON.stringify(nodule.parameters);
+		// we can use a little bit of optimization here?
+		const inputs = this.connections.filter(it => it.toModuleId === nodule.id);
+		if (inputs.length === 0) {
+			// source
+			return `${initial}({},${params})`;
+		} else {
+			// sink
+			const tween = inputs.map(it => {
+				const source = this.getNoduleById(it.fromModuleId)
+				const expr = this.compileNodule(source);
+				return {
+					expr: expr,
+					sinkPort: it.toModulePort,
+					sourcePort: it.fromModulePort
+				}
+			}).reduce((a, v) => {
+				return a + `"${v.sinkPort}":${v.expr}["${v.sourcePort}"],`;
+			}, '');
+			console.debug(tween);
+			return `${initial}({${tween}},${params})`;
+		}
 	};
 
 	this.run = function () {
-		// TODO
+		const output = this.compile();
+		eval(output); // yeet, this is like, fucked up terribly
+	};
+
+	this.getNoduleById = function (id) {
+		const index = this.nodules.findIndex(x => x.id === id);
+		return this.nodules[index];
 	};
 
 	this.toObject = function () {

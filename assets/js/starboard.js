@@ -18,7 +18,7 @@ window.addEventListener('load', () => {
 		show(consoleFold);
 		show(consoleBoard);
 	});
-	print('Ready');
+	writeConsole('Ready\n');
 });
 
 function hide(e) {
@@ -35,15 +35,21 @@ function installPortEventListeners(e, name, parentName) {
 	e.addEventListener('mousedown', dragMouseDown);
 	e.addEventListener('dblclick', doubleClick);
 	e.addEventListener('mouseup', elementMouseUp);
+	e.addEventListener('mouseenter', hover);
 
 	function dragMouseDown(event) {
 		event.preventDefault();
 		event.stopPropagation();
+		const type = e.getAttribute('data-type');
+		if (!type || type === 'input') {
+			return;
+		}
 		const rect = e.getClientRects()[0];
 		lastX = Math.round(rect.x + rect.width / 2);
 		lastY = Math.round(rect.y + rect.height / 2);
 		document.addEventListener('mouseup', dragMouseUp);
 		document.addEventListener('mousemove', dragMouseMove);
+		window.portDraggingStarted = true;
 		const line = document.getElementById('live-line');
 		line.setAttribute('x1', lastX.toString());
 		line.setAttribute('x2', lastX);
@@ -65,6 +71,7 @@ function installPortEventListeners(e, name, parentName) {
 	function dragMouseUp() {
 		document.removeEventListener('mouseup', dragMouseUp);
 		document.removeEventListener('mousemove', dragMouseMove);
+		window.portDraggingStarted = false;
 		hide(document.getElementById('live-line'));
 	}
 
@@ -84,10 +91,30 @@ function installPortEventListeners(e, name, parentName) {
 		}
 	}
 
-	function doubleClick(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	function doubleClick(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		console.debug('Label double click');
+	}
+
+	function hover() {
+		const type = e.getAttribute('data-type');
+		if (!type) {
+			return;
+		}
+		if (!window.portDraggingStarted) {
+			if (type === 'input') {
+				e.style.cursor = 'not-allowed';
+			} else {
+				e.style.cursor = 'crosshair';
+			}
+		} else {
+			if (type === 'output') {
+				e.style.cursor = 'no-drop';
+			} else {
+				e.style.cursor = 'crosshair';
+			}
+		}
 	}
 }
 
@@ -107,8 +134,9 @@ function installConnectionEventListeners(e) {
 		event.preventDefault();
 		event.stopPropagation();
 		if (event.altKey) {
-			if (window.sketch.breakConnection(e.id)) {
-				e.remove();
+			const id = e.getAttribute('data-id');
+			if (window.sketch.breakConnection(id)) {
+				document.querySelectorAll(`[data-id="${id}"]`).forEach(it => it.remove());
 			}
 		}
 	}
@@ -166,7 +194,7 @@ function installBlockEventListeners(e, cb = (x, y) => {
 	}
 }
 
-function print(x) {
+function writeConsole(x) {
 	document.getElementById('console-output').innerText += x;
 }
 
@@ -190,8 +218,10 @@ function setConnections(xs) {
 	xs.forEach(x => lines.appendChild(x));
 }
 
-function appendConnection(x) {
-	document.getElementById('line-container').appendChild(x);
+function appendConnection(xs) {
+	xs.forEach(x => {
+		document.getElementById('line-container').appendChild(x);
+	});
 }
 
 function loadSketch(sketch) {
@@ -208,5 +238,13 @@ function loadSketchFromJson(json) {
 	} catch (e) {
 		console.error(e);
 		setStatus('Cannot load this sketch');
+	}
+}
+
+function run() {
+	if (window.sketch) {
+		window.sketch.run();
+	} else {
+		console.error('No sketch is loaded');
 	}
 }

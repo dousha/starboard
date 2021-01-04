@@ -100,6 +100,12 @@ body {
 	outline: 1px solid orange;
 }
 
+.console-content {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
 .console-output {
 	margin: 0.5em;
 }
@@ -133,7 +139,6 @@ body {
 	display: block;
 	font-family: 'JetBrains Mono', 'Consolas', 'Courier New', Courier, monospace;
 	margin: 0.5em 0;
-	cursor: crosshair;
 }
 
 .nodule-label:hover {
@@ -161,8 +166,4 @@ body {
 	height: 100vh;
 	margin: 0;
 	padding: 0;
-}
-
-.connection {
-	cursor: crosshair;
 }
