@@ -33,6 +33,8 @@ function Nodule() {
 	};
 
 	this.draw = function () {
+		const outererBox = document.createElement('div');
+		outererBox.classList.add('block-wrapper');
 		const outerBox = document.createElement('div');
 		outerBox.classList.add('grip');
 		outerBox.classList.add('block');
@@ -46,15 +48,20 @@ function Nodule() {
 		nameLabel.classList.add('nodule-name');
 		nameLabel.innerText = this.name;
 		const paramLabel = this.drawParam();
+		const idLabel = document.createElement('span');
+		idLabel.classList.add('nodule-id');
+		idLabel.innerText = this.id;
 		content.append(nameLabel, paramLabel);
 		leftHandle.append(this.drawIo(this.input, 'input'));
 		rightHandle.append(this.drawIo(this.output, 'output'));
 		outerBox.append(leftHandle, content, rightHandle);
-		outerBox.style.top = `${this.y}px`;
-		outerBox.style.left = `${this.x}px`;
 		outerBox.setAttribute('data-id', this.id);
-		installBlockEventListeners(outerBox, this.move.bind(this));
-		return outerBox;
+		installBlockEventListeners(outererBox, this.move.bind(this));
+		outererBox.append(outerBox);
+		outererBox.append(idLabel);
+		outererBox.style.top = `${this.y}px`;
+		outererBox.style.left = `${this.x}px`;
+		return outererBox;
 	};
 
 	this.move = function (x, y) {

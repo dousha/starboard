@@ -81,7 +81,6 @@ body {
 	display: flex;
 	flex-flow: row;
 	align-items: center;
-	position: absolute;
 	border: 1px solid black;
 	box-shadow: 2px 2px;
 	cursor: grab;
@@ -89,6 +88,13 @@ body {
 	min-width: 100px;
 	min-height: 70px;
 	background-color: white;
+}
+
+.block-wrapper {
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	position: absolute;
 }
 
 .block > span {
@@ -156,6 +162,12 @@ body {
 .nodule-parameters {
 	font-family: 'JetBrains Mono', 'Consolas', 'Courier New', Courier, monospace;
 	font-size: 12px;
+}
+
+.nodule-id {
+	font-family: 'JetBrains Mono', 'Consolas', 'Courier New', Courier, monospace;
+	font-size: 14px;
+	margin-top: 0.2em;
 }
 
 .line-container {

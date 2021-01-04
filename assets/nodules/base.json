@@ -1,0 +1,31 @@
+{
+	"script": "assets/js/intrinsic.js",
+	"nodules": [
+		{
+			"name": "Constant",
+			"input": [],
+			"output": [
+				{
+					"name": "v",
+					"type": "number"
+				}
+			],
+			"parameters": {
+				"value": {
+					"type": "number"
+				}
+			}
+		},
+		{
+			"name": "Output",
+			"input": [
+				{
+					"name": "in",
+					"type": "any"
+				}
+			],
+			"output": [],
+			"parameters": {}
+		}
+	]
+}
