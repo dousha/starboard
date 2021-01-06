@@ -44,7 +44,7 @@
 </svg>
 <svg class="line-container" id="line-container"></svg>
 <div class="context-menu" id="board-context-menu">
-	<div class="context-menu-item">
+	<div class="context-menu-item" onclick="showDialog('dialog-add'); hideContextMenu();">
 		<span>Add Nodule...</span>
 	</div>
 	<hr>
@@ -85,6 +85,15 @@
 	<div class="dialog-action">
 		<button onclick="clearDialog()">Cancel</button>
 		<button onclick="saveSketchWithName()">Save</button>
+	</div>
+</div>
+<div class="dialog" id="dialog-add">
+	<div class="dialog-bar">
+		<span class="dialog-title">Add nodule</span>
+	</div>
+	<div class="dialog-content" id="nodule-list"></div>
+	<div class="dialog-action">
+		<button onclick="clearDialog()">Cancel</button>
 	</div>
 </div>
 </body>

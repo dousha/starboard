@@ -1,44 +1,28 @@
 function Loader(base) {
 	this.nodules = {};
 
-	this.load = function () {
-		loadDataPromise(`${base}/index.json`).then(res => {
-			const items = JSON.parse(res);
-			Promise.all(items.map(path => loadDataPromise(`${base}/${path}`)))
-				.then(things => {
-					things.map(it => JSON.parse(it))
-						.forEach(it => {
-							if ('checksum' in it && 'nodules' in it && 'script' in it) {
-								const checksum = it.checksum.toLowerCase().trim();
-								loadDataPromise(`${base}/${it.script}`).then(x => {
-									const encoder = new TextEncoder();
-									const data = encoder.encode(x);
-									const digestPromise = crypto.subtle.digest('SHA-256', data).then(result =>
-										Array.from(new Uint8Array(result)).map(b => b.toString(16).padStart(2, '0')).join('')
-									);
-									digestPromise.then(digest => {
-										if (digest.toLowerCase().trim() === checksum) {
-											console.debug('Loaded', it.script);
-											// the (1, ) part is essential if we need to
-											// load things into the global context
-											// yes, it is horrible. we need to encapsulate it
-											// in a later stage
-											(1, eval)(x);
-											it.nodules.forEach(nodule => {
-												this.nodules[nodule.name] = nodule;
-											});
-										} else {
-											console.error('Checksum mismatch! Expected', digest, 'Got', checksum);
-										}
-									});
-								});
-							} else {
-								console.error('Invalid nodule library')
-								console.error(it);
-							}
-						}); // TODO
-				});
-		});
+	this.load = async function () {
+		const index = await loadDataPromise(`${base}/index.json`);
+		const items = JSON.parse(index);
+		const loadingNodules = await Promise.all(items.map(it => loadDataPromise(`${base}/${it}`).then(x => JSON.parse(x))));
+		await Promise.all(loadingNodules
+			.filter(it => 'checksum' in it && 'nodules' in it && 'script' in it)
+			.map(async (it) => {
+				const script = await loadDataPromise(`${base}/${it.script}`);
+				const encoder = new TextEncoder();
+				const data = encoder.encode(script);
+				const digest = await crypto.subtle.digest('SHA-256', data);
+				const digestText = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+				if (it.checksum.toLowerCase().trim() !== digestText.toLowerCase().trim()) {
+					console.error('Checksum mismatch, expected', it.checksum, 'actual', digestText);
+				} else {
+					(1, eval)(script);
+					it.nodules.forEach(nodule => {
+						this.nodules[nodule.name] = nodule;
+					});
+				}
+			}));
+		this.populateNoduleList();
 	};
 
 	this.createNodule = function (name) {
@@ -60,5 +44,18 @@ function Loader(base) {
 		const nodule = new Nodule();
 		nodule.loadFromObject(noduleInstance);
 		return nodule;
+	};
+
+	this.populateNoduleList = function () {
+		const container = document.getElementById('nodule-list');
+		Object.keys(this.nodules).forEach(it => {
+			const wrapper = document.createElement('div');
+			wrapper.classList.add('nodule-wrapper');
+			// TODO: maybe a better one
+			const name = document.createElement('span');
+			name.innerText = it;
+			wrapper.append(name);
+			container.append(wrapper);
+		});
 	};
 }

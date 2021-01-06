@@ -262,3 +262,12 @@ body {
 .dialog-table > tbody > tr:hover {
 	background-color: #ddd;
 }
+
+.nodule-wrapper {
+	margin: 0.2em 0;
+	cursor: default;
+}
+
+.nodule-wrapper:hover {
+	background-color: #ddd;
+}
