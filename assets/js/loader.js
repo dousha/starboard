@@ -1,5 +1,5 @@
 function Loader(base) {
-	this.nodules = [];
+	this.nodules = {};
 
 	this.load = function () {
 		loadDataPromise(`${base}/index.json`).then(res => {
@@ -24,7 +24,9 @@ function Loader(base) {
 											// yes, it is horrible. we need to encapsulate it
 											// in a later stage
 											(1, eval)(x);
-											this.nodules.push(...it.nodules);
+											it.nodules.forEach(nodule => {
+												this.nodules[nodule.name] = nodule;
+											});
 										} else {
 											console.error('Checksum mismatch! Expected', digest, 'Got', checksum);
 										}
@@ -37,5 +39,26 @@ function Loader(base) {
 						}); // TODO
 				});
 		});
+	};
+
+	this.createNodule = function (name) {
+		const nodulePrototype = this.nodules[name];
+		// everything else is fine, we just need to allocate a new name
+		if (!window.sketch) {
+			console.error('No sketch loaded');
+			return;
+		}
+		const namePrefix = name.toLowerCase();
+		const namePostfix = window.sketch.nodules.filter(x => x.id.startsWith(namePrefix)).length + 1;
+		const noduleInstance = {};
+		Object.assign(noduleInstance, nodulePrototype);
+		noduleInstance['id'] = `${namePrefix}-${namePostfix}`;
+		Object.keys(noduleInstance.parameters).forEach(param => {
+			const paramConfig = noduleInstance.parameters[param];
+			noduleInstance.parameters[param] = paramConfig.defaultValue;
+		});
+		const nodule = new Nodule();
+		nodule.loadFromObject(noduleInstance);
+		return nodule;
 	};
 }
