@@ -4,9 +4,34 @@ function Constant(inputs, params) {
 	};
 }
 
-function Output(inputs, params) {
+function Output(inputs) {
 	if ('in' in inputs) {
 		console.log(inputs['in']);
 		writeConsole(inputs['in']);
+	}
+}
+
+function Mux(inputs) {
+	if ('in' in inputs) {
+		return {
+			out1: inputs['in'],
+			out2: inputs['in']
+		};
+	}
+}
+
+function Sum(inputs) {
+	if ('x' in inputs && 'y' in inputs) {
+		return {
+			v: inputs['x'] + inputs['y']
+		};
+	}
+}
+
+function Negate(inputs) {
+	if ('x' in inputs) {
+		return {
+			v: -inputs['x']
+		};
 	}
 }

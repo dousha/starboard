@@ -4,16 +4,32 @@ function Nodule() {
 	this.input = [];
 	this.output = [];
 	this.parameters = {};
+	this.paramTypes = {};
 
 	this.x = 0;
 	this.y = 0;
 
 	this.activeConnections = [];
 
+	this.getParamString = function () {
+		return Object.keys(this.parameters).map(it => {
+			const value = this.parameters[it];
+			if (typeof value === 'object') {
+				if (value instanceof Array) {
+					return `${it}=[...]`;
+				} else {
+					return `${it}={...}`;
+				}
+			} else {
+				return `${it}=${value.toString()}`;
+			}
+		}).join('\n');
+	};
+
 	this.drawParam = function () {
 		const label = document.createElement('span');
 		label.classList.add('nodule-parameters');
-		label.innerText = Object.keys(this.parameters).map(it => `${it}=${this.parameters[it]}`).join('\n');
+		label.innerText = this.getParamString();
 		return label;
 	};
 
@@ -85,15 +101,19 @@ function Nodule() {
 
 	this.generatePropertyList = function () {
 		function generateInputPair(name, value) {
-			const wrapper = document.createElement('div');
+			const wrapper = document.createElement('tr');
 			wrapper.classList.add('property-entry');
+			const labelWrapper = document.createElement('td');
 			const label = document.createElement('span');
 			label.innerText = name;
+			labelWrapper.append(label);
+			const inputWrapper = document.createElement('td');
 			const input = document.createElement('input');
 			input.id = `input-${name}`;
 			input.value = value;
 			label.setAttribute('for', input.id);
-			wrapper.append(label, input);
+			inputWrapper.append(input);
+			wrapper.append(labelWrapper, inputWrapper);
 			return wrapper;
 		}
 

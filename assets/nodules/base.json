@@ -1,6 +1,6 @@
 {
 	"script": "intrinsic.js",
-	"checksum": "a4e422f6608d1f6db8cb31bd71775671f5c1341e19673462725122243fe152e8",
+	"checksum": "79ae9f2409444c60629ed30b8873cf8bc702f10a4ed5f56d4291a69f3fb25440",
 	"nodules": [
 		{
 			"name": "Constant",
@@ -17,6 +17,59 @@
 					"type": "number"
 				}
 			}
+		},
+		{
+			"name": "Mux",
+			"input": [
+				{
+					"name": "in",
+					"type": "any"
+				}
+			],
+			"output": [
+				{
+					"name": "out1",
+					"type": "any"
+				},
+				{
+					"name": "out2",
+					"type": "any"
+				}
+			]
+		},
+		{
+			"name": "Sum",
+			"input": [
+				{
+					"name": "x",
+					"type": "number"
+				},
+				{
+					"name": "y",
+					"type": "number"
+				}
+			],
+			"output": [
+				{
+					"name": "v",
+					"type": "number"
+				}
+			]
+		},
+		{
+			"name": "Negate",
+			"input": [
+				{
+					"name": "x",
+					"type": "number"
+				}
+			],
+			"output": [
+				{
+					"name": "v",
+					"type": "number"
+				}
+			]
 		},
 		{
 			"name": "Output",

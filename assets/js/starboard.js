@@ -199,6 +199,7 @@ function installBlockEventListeners(e, cb = (x, y) => {
 		event.preventDefault();
 		event.stopPropagation();
 		const id = e.querySelector('.nodule-id').innerText;
+		window.editingNoduleId = id;
 		const nodule = window.sketch.getNoduleById(id);
 		const container = document.getElementById('property-list');
 		clearElement(container);
@@ -379,4 +380,45 @@ function showDialog(name) {
 function clearDialog() {
 	const dialogs = document.querySelectorAll('.dialog');
 	dialogs.forEach(dialog => dialog.style.display = 'none');
+}
+
+function saveNoduleProperties() {
+	const box = document.getElementById('property-list');
+	const nodule = window.sketch.getNoduleById(window.editingNoduleId);
+	if (!nodule) {
+		console.error(window.editingNoduleId, 'not found');
+		return;
+	}
+	const noduleElement = document.querySelector(`[data-id="${window.editingNoduleId}"]`).parentElement;
+	box.childNodes.forEach(item => {
+		const key = item.firstChild.firstChild.innerText;
+		const value = item.lastChild.firstChild.value;
+		console.debug(key, value);
+		if (key === 'id') {
+			if (window.editingNoduleId !== value) {
+				nodule.id = value;
+				noduleElement.querySelector('.nodule-id').innerText = value;
+			}
+		} else {
+			// TODO: more granular type verification
+			const typeInfo = nodule.paramTypes[key];
+			let parsedValue;
+			switch (typeInfo.type) {
+				case 'number':
+					parsedValue = Number(value);
+					break;
+				case 'string':
+					parsedValue = value.toString();
+					break;
+				case 'any':
+				case 'unknown':
+				default:
+					parsedValue = value;
+					break;
+			}
+			nodule.parameters[key] = parsedValue;
+		}
+		noduleElement.querySelector('.nodule-parameters').innerText = nodule.getParamString();
+	});
+	clearDialog();
 }

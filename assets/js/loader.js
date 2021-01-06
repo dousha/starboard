@@ -34,15 +34,18 @@ function Loader(base) {
 		}
 		const namePrefix = name.toLowerCase();
 		const namePostfix = window.sketch.nodules.filter(x => x.id.startsWith(namePrefix)).length + 1;
-		const noduleInstance = {};
-		Object.assign(noduleInstance, nodulePrototype);
+		const noduleInstance = {...nodulePrototype};
 		noduleInstance['x'] = x;
 		noduleInstance['y'] = y;
 		noduleInstance['id'] = `${namePrefix}-${namePostfix}`;
-		Object.keys(noduleInstance.parameters).forEach(param => {
-			const paramConfig = noduleInstance.parameters[param];
-			noduleInstance.parameters[param] = paramConfig.defaultValue;
-		});
+		noduleInstance.parameters = Object.create({});
+		if (nodulePrototype.parameters) {
+			noduleInstance['paramTypes'] = nodulePrototype.parameters;
+			Object.keys(nodulePrototype.parameters).forEach(param => {
+				const paramConfig = nodulePrototype.parameters[param];
+				noduleInstance.parameters[param] = paramConfig.default;
+			});
+		}
 		const nodule = new Nodule();
 		nodule.loadFromObject(noduleInstance);
 		return nodule;
