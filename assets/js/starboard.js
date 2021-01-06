@@ -18,6 +18,16 @@ window.addEventListener('load', () => {
 		show(consoleFold);
 		show(consoleBoard);
 	});
+	const board = document.getElementById('board');
+	board.addEventListener('click', e => {
+		e.preventDefault();
+		hideContextMenu();
+	});
+	board.addEventListener('contextmenu', e => {
+		e.preventDefault();
+		e.stopPropagation();
+		showContextMenu('board-context-menu', e.clientX, e.clientY);
+	});
 	writeConsole('Ready\n');
 });
 
@@ -185,11 +195,13 @@ function installBlockEventListeners(e, cb = (x, y) => {
 
 	function doubleClick(e) {
 		e.preventDefault();
+		e.stopPropagation();
 		console.debug('Double click!');
 	}
 
 	function rightClick(e) {
 		e.preventDefault();
+		e.stopPropagation();
 		console.debug('Right click!');
 	}
 }
@@ -215,7 +227,7 @@ function setBoard(xs) {
 function setConnections(xs) {
 	const lines = document.getElementById('line-container');
 	clearElement(lines);
-	xs.forEach(x => lines.appendChild(x));
+	xs.forEach(x => appendConnection(x));
 }
 
 function appendConnection(xs) {
@@ -224,8 +236,85 @@ function appendConnection(xs) {
 	});
 }
 
+function newSketch() {
+	const sketch = new Sketch('New Sketch');
+	loadSketch(sketch);
+	window.sketchNamed = false;
+}
+
+function saveSketch() {
+	if (!window.sketch) {
+		console.error('No sketch loaded');
+		return;
+	}
+	if (!window.sketchNamed) {
+		showDialog('dialog-save');
+	} else {
+		sketchSaveWorker();
+	}
+}
+
+function saveSketchWithName() {
+	if (!window.sketch) {
+		console.error('No sketch loaded');
+		return;
+	}
+	const name = document.getElementById('sketch-name').value;
+	if (name.trim().length < 1) {
+		alert('Sketch name cannot be empty');
+		return;
+	}
+	window.sketch.name = name;
+	setTitle(name);
+	sketchSaveWorker();
+	clearDialog();
+}
+
+function sketchSaveWorker() {
+	const item = window.sketch.toObject();
+	item['saveTime'] = (new Date()).toString();
+	const glob = JSON.stringify(item);
+	console.debug(glob);
+	if (window.localStorage) {
+		window.localStorage['starboard_' + window.sketch.name] = glob;
+		// TODO: better dialog
+		alert('Saved ' + item.name);
+	} else {
+		writeConsole(glob);
+	}
+}
+
+function openSketch() {
+	if (window.localStorage) {
+		const content = document.getElementById('saved-sketches');
+		clearElement(content);
+		Object.keys(window.localStorage)
+			.filter(it => it.startsWith('starboard_'))
+			.map(it => window.localStorage[it])
+			.map(it => JSON.parse(it))
+			.map((it, index) => {
+				const row = document.createElement('tr');
+				const idCol = document.createElement('td');
+				idCol.innerText = index.toString();
+				const nameCol = document.createElement('td');
+				nameCol.innerText = it.name;
+				const mtimeCol = document.createElement('td');
+				mtimeCol.innerText = it.saveTime;
+				row.append(idCol, nameCol, mtimeCol);
+				return row;
+			})
+			.forEach(row => {
+				content.append(row);
+			});
+		showDialog('dialog-open');
+	} else {
+		// TODO
+	}
+}
+
 function loadSketch(sketch) {
 	window.sketch = sketch;
+	window.sketchNamed = true;
 	setTitle(sketch.name);
 	setBoard(sketch.drawNodules());
 	setConnections(sketch.drawConnections());
@@ -247,4 +336,34 @@ function run() {
 	} else {
 		console.error('No sketch is loaded');
 	}
+}
+
+function showContextMenu(name, x, y) {
+	const box = document.getElementById(name);
+	if (!box) {
+		console.error(name, 'not found');
+		return;
+	}
+	box.style.top = `${y}px`;
+	box.style.left = `${x}px`;
+	show(box);
+}
+
+function hideContextMenu() {
+	const boxes = document.querySelectorAll('.context-menu');
+	boxes.forEach(box => box.style.display = 'none');
+}
+
+function showDialog(name) {
+	const dialog = document.getElementById(name);
+	if (!dialog) {
+		console.error(name, 'not found');
+		return;
+	}
+	dialog.style.display = 'flex';
+}
+
+function clearDialog() {
+	const dialogs = document.querySelectorAll('.dialog');
+	dialogs.forEach(dialog => dialog.style.display = 'none');
 }

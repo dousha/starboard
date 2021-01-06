@@ -1,5 +1,6 @@
 {
-	"script": "assets/js/intrinsic.js",
+	"script": "intrinsic.js",
+	"checksum": "E4DBD8E7346568983DE39BAA6353E6A02F48E23CFDA5BF2B824B1EBB4CC9C9BB",
 	"nodules": [
 		{
 			"name": "Constant",
@@ -12,6 +13,7 @@
 			],
 			"parameters": {
 				"value": {
+					"default": 0,
 					"type": "number"
 				}
 			}

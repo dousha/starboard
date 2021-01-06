@@ -150,6 +150,10 @@ function Connection() {
 		element.setAttribute('y2', y2.toString());
 	};
 
+	this.save = function () {
+		return this;
+	};
+
 	this.loadFromObject = function (o) {
 		// TODO: type checking
 		Object.assign(this, o);

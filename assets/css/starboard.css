@@ -75,6 +75,7 @@ body {
 .board {
 	width: 100vw;
 	flex-grow: 1;
+	z-index: 1;
 }
 
 .block {
@@ -82,7 +83,7 @@ body {
 	flex-flow: row;
 	align-items: center;
 	border: 1px solid black;
-	box-shadow: 2px 2px;
+	box-shadow: 3px 3px #0007;
 	cursor: grab;
 	z-index: 1;
 	min-width: 100px;
@@ -178,4 +179,86 @@ body {
 	height: 100vh;
 	margin: 0;
 	padding: 0;
+}
+
+.context-menu {
+	position: absolute;
+	max-width: 30em;
+	background-color: #eee;
+	border: 1px solid silver;
+	box-shadow: 4px 4px #8888;
+	z-index: 1000000;
+	display: none;
+}
+
+.context-menu > hr {
+	width: 100%;
+	margin: 1px 0;
+	padding: 0;
+}
+
+.context-menu-item {
+	display: flex;
+	flex-flow: column;
+	padding: 0 0.5em;
+	cursor: default;
+}
+
+.context-menu-item > span {
+	padding: 0.3em 0;
+}
+
+.context-menu-item:hover {
+	background-color: lightgray;
+}
+
+.dialog {
+	position: absolute;
+	display: none; /* shall be flex when displaying */
+	flex-flow: column;
+	align-items: stretch;
+	left: 2em;
+	top: 2em;
+	background-color: #eeeeee;
+	border: 1px solid black;
+	z-index: 1000001;
+}
+
+.dialog-bar {
+	display: flex;
+	flex-flow: row;
+	align-items: center;
+	border-bottom: 1px solid black;
+}
+
+.dialog-content {
+	display: flex;
+	flex-flow: column;
+	align-items: stretch;
+	padding: 0.5em 1em;
+}
+
+.dialog-title {
+	margin: 0.5em 1em;
+}
+
+.dialog-action {
+	display: flex;
+	flex-flow: row-reverse;
+	align-items: center;
+	border-top: 1px solid black;
+}
+
+.dialog-table > thead {
+	border-bottom: 1px solid gray;
+}
+
+.dialog-table > thead > tr > td {
+	padding: 0.2em 1em;
+	border-right: 1px solid gray;
+	border-left: 1px solid gray;
+}
+
+.dialog-table > tbody > tr:hover {
+	background-color: #ddd;
 }

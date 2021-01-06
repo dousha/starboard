@@ -5,8 +5,8 @@
 	<meta charset="utf-8">
 	<title>Starboard</title>
 	<link rel="stylesheet" href="assets/css/starboard.css">
-	<script src="assets/js/intrinsic.js"></script>
 	<script src="assets/js/utils.js"></script>
+	<script src="assets/js/loader.js"></script>
 	<script src="assets/js/sketcher.js"></script>
 	<script src="assets/js/starboard.js"></script>
 	<script src="assets/js/testing.js"></script>
@@ -19,6 +19,9 @@
 			<span id="title">Title</span>
 		</div>
 		<div class="vertical-wrapper toolbar">
+			<button onclick="newSketch()">New</button>
+			<button onclick="openSketch()">Open</button>
+			<button onclick="saveSketch()">Save</button>
 			<button onclick="run()">Run</button>
 		</div>
 		<div class="vertical-wrapper">
@@ -40,6 +43,50 @@
 	<line id="live-line" x1="0" x2="0" y1="0" y2="0" stroke="gray" stroke-width="2"></line>
 </svg>
 <svg class="line-container" id="line-container"></svg>
+<div class="context-menu" id="board-context-menu">
+	<div class="context-menu-item">
+		<span>Add Nodule...</span>
+	</div>
+	<hr>
+	<div class="context-menu-item">
+		<span>Properties...</span>
+	</div>
+</div>
+<div class="dialog" id="dialog-open">
+	<div class="dialog-bar">
+		<span class="dialog-title">Open sketch</span>
+	</div>
+	<div class="dialog-content">
+		<table class="dialog-table">
+			<thead>
+			<tr>
+				<td>#</td>
+				<td>Sketch name</td>
+				<td>Saved time</td>
+			</tr>
+			</thead>
+			<tbody id="saved-sketches">
+			<!-- Populated by loader -->
+			</tbody>
+		</table>
+	</div>
+	<div class="dialog-action">
+		<button onclick="clearDialog()">Cancel</button>
+	</div>
+</div>
+<div class="dialog" id="dialog-save">
+	<div class="dialog-bar">
+		<span class="dialog-title">Save sketch</span>
+	</div>
+	<div class="dialog-content">
+		<label for="sketch-name">Sketch name</label>
+		<input id="sketch-name">
+	</div>
+	<div class="dialog-action">
+		<button onclick="clearDialog()">Cancel</button>
+		<button onclick="saveSketchWithName()">Save</button>
+	</div>
+</div>
 </body>
 
 </html>
