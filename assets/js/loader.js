@@ -8,7 +8,7 @@ function Loader(base) {
 		await Promise.all(loadingNodules
 			.filter(it => 'checksum' in it && 'nodules' in it && 'script' in it)
 			.map(async (it) => {
-				const script = await loadDataPromise(`${base}/${it.script}`);
+				const script = (await loadDataPromise(`${base}/${it.script}`)).replace(/[\r\n]/gmi, '');
 				const encoder = new TextEncoder();
 				const data = encoder.encode(script);
 				const digest = await crypto.subtle.digest('SHA-256', data);
@@ -25,7 +25,7 @@ function Loader(base) {
 		this.populateNoduleList();
 	};
 
-	this.createNodule = function (name) {
+	this.createNodule = function (name, x, y) {
 		const nodulePrototype = this.nodules[name];
 		// everything else is fine, we just need to allocate a new name
 		if (!window.sketch) {
@@ -36,6 +36,8 @@ function Loader(base) {
 		const namePostfix = window.sketch.nodules.filter(x => x.id.startsWith(namePrefix)).length + 1;
 		const noduleInstance = {};
 		Object.assign(noduleInstance, nodulePrototype);
+		noduleInstance['x'] = x;
+		noduleInstance['y'] = y;
 		noduleInstance['id'] = `${namePrefix}-${namePostfix}`;
 		Object.keys(noduleInstance.parameters).forEach(param => {
 			const paramConfig = noduleInstance.parameters[param];
@@ -55,6 +57,17 @@ function Loader(base) {
 			const name = document.createElement('span');
 			name.innerText = it;
 			wrapper.append(name);
+			wrapper.addEventListener('click', e => {
+				e.preventDefault();
+				e.stopPropagation();
+				if (!window.sketch) {
+					console.error('No sketch loaded');
+					return;
+				}
+				const nodule = this.createNodule(it, window.contextMenuX, window.contextMenuY);
+				window.sketch.addNodule(nodule);
+				clearDialog();
+			});
 			container.append(wrapper);
 		});
 	};

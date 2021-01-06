@@ -44,12 +44,21 @@
 </svg>
 <svg class="line-container" id="line-container"></svg>
 <div class="context-menu" id="board-context-menu">
-	<div class="context-menu-item" onclick="showDialog('dialog-add'); hideContextMenu();">
+	<div class="context-menu-item" onclick="showDialog('dialog-add')">
 		<span>Add Nodule...</span>
 	</div>
 	<hr>
 	<div class="context-menu-item">
 		<span>Properties...</span>
+	</div>
+</div>
+<div class="context-menu" id="nodule-context-menu">
+	<div class="context-menu-item" onclick="showDialog('dialog-nodule-edit')">
+		<span>Properties...</span>
+	</div>
+	<hr>
+	<div class="context-menu-item" onclick="">
+		<span>Delete</span>
 	</div>
 </div>
 <div class="dialog" id="dialog-open">
@@ -94,6 +103,16 @@
 	<div class="dialog-content" id="nodule-list"></div>
 	<div class="dialog-action">
 		<button onclick="clearDialog()">Cancel</button>
+	</div>
+</div>
+<div class="dialog" id="dialog-nodule-edit">
+	<div class="dialog-bar">
+		<span class="dialog-title">Edit properties</span>
+	</div>
+	<div class="dialog-content" id="property-list"></div>
+	<div class="dialog-action">
+		<button onclick="clearDialog()">Cancel</button>
+		<button onclick="">Save</button>
 	</div>
 </div>
 </body>

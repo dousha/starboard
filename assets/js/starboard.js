@@ -27,6 +27,8 @@ window.addEventListener('load', () => {
 		e.preventDefault();
 		e.stopPropagation();
 		showContextMenu('board-context-menu', e.clientX, e.clientY);
+		window.contextMenuX = e.clientX;
+		window.contextMenuY = e.clientY;
 	});
 	writeConsole('Ready\n');
 });
@@ -193,16 +195,18 @@ function installBlockEventListeners(e, cb = (x, y) => {
 		e.style.left = `${x}px`;
 	}
 
-	function doubleClick(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	function doubleClick(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		console.debug('Double click!');
+		const id = e.querySelector('[data-id]').innerText;
+		console.debug(id);
 	}
 
-	function rightClick(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		console.debug('Right click!');
+	function rightClick(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		showContextMenu('nodule-context-menu', event.clientX, event.clientY);
 	}
 }
 
@@ -222,6 +226,11 @@ function setBoard(xs) {
 	const board = document.getElementById('board');
 	clearElement(board);
 	xs.forEach(x => board.append(x));
+}
+
+function appendBoard(x) {
+	const board = document.getElementById('board');
+	board.append(x);
 }
 
 function setConnections(xs) {
@@ -361,6 +370,7 @@ function showDialog(name) {
 		return;
 	}
 	dialog.style.display = 'flex';
+	hideContextMenu();
 }
 
 function clearDialog() {

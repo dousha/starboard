@@ -83,6 +83,27 @@ function Nodule() {
 		return out;
 	};
 
+	this.generatePropertyList = function () {
+		function generateInputPair(name, value) {
+			const wrapper = document.createElement('div');
+			wrapper.classList.add('property-entry');
+			const label = document.createElement('span');
+			label.innerText = it;
+			const input = document.createElement('input');
+			input.id = `input-${it}`;
+			label.setAttribute('for', input.id);
+			wrapper.append(label, input);
+			return wrapper;
+		}
+
+		const out = Object.keys(this.parameters).map(it => {
+			const paramValue = this.parameters[it];
+			return generateInputPair(it, paramValue)
+		});
+		out.unshift(generateInputPair('id', this.id));
+		return out;
+	};
+
 	this.loadFromObject = function (o) {
 		// TODO: type checking
 		Object.assign(this, o);
@@ -171,6 +192,15 @@ function Sketch(name) {
 
 	this.drawConnections = function () {
 		return this.connections.map(it => it.draw());
+	};
+
+	this.addNodule = function (nodule) {
+		this.nodules.push(nodule);
+		appendBoard(nodule.draw());
+	};
+
+	this.deleteNodule = function (name) {
+		//
 	};
 
 	this.makeConnection = function (from, to) {
