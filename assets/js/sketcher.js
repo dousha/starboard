@@ -88,9 +88,10 @@ function Nodule() {
 			const wrapper = document.createElement('div');
 			wrapper.classList.add('property-entry');
 			const label = document.createElement('span');
-			label.innerText = it;
+			label.innerText = name;
 			const input = document.createElement('input');
-			input.id = `input-${it}`;
+			input.id = `input-${name}`;
+			input.value = value;
 			label.setAttribute('for', input.id);
 			wrapper.append(label, input);
 			return wrapper;

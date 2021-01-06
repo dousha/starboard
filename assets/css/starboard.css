@@ -89,6 +89,10 @@ body {
 	min-width: 100px;
 	min-height: 70px;
 	background-color: white;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 }
 
 .block-wrapper {
@@ -96,11 +100,18 @@ body {
 	flex-flow: column;
 	align-items: center;
 	position: absolute;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 }
 
 .block > span {
 	flex-grow: 1;
 	text-align: center;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 }
 
 .block:focus {

@@ -198,9 +198,12 @@ function installBlockEventListeners(e, cb = (x, y) => {
 	function doubleClick(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		console.debug('Double click!');
-		const id = e.querySelector('[data-id]').innerText;
-		console.debug(id);
+		const id = e.querySelector('.nodule-id').innerText;
+		const nodule = window.sketch.getNoduleById(id);
+		const container = document.getElementById('property-list');
+		clearElement(container);
+		nodule.generatePropertyList().forEach(x => container.append(x));
+		showDialog('dialog-nodule-edit');
 	}
 
 	function rightClick(event) {
