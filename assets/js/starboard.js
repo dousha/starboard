@@ -284,14 +284,19 @@ function saveSketchWithName() {
 }
 
 function sketchSaveWorker() {
-	const item = window.sketch.toObject();
-	item['saveTime'] = (new Date()).toString();
-	const glob = JSON.stringify(item);
-	console.debug(glob);
+	const sketch = window.sketch.toObject();
+	const sketchDescriptor = {
+		name: sketch.name,
+		saveTime: (new Date()).toString(),
+		actualName: randomName()
+	};
+	const glob = JSON.stringify(sketch);
+	const descriptorGlob = JSON.stringify(sketchDescriptor);
 	if (window.localStorage) {
-		window.localStorage['starboard_' + window.sketch.name] = glob;
+		window.localStorage['starboard_' + sketchDescriptor.actualName] = descriptorGlob;
+		window.localStorage['_starboard_' + sketchDescriptor.actualName] = glob;
 		// TODO: better dialog
-		alert('Saved ' + item.name);
+		alert('Saved ' + sketch.name);
 	} else {
 		writeConsole(glob);
 	}
@@ -314,6 +319,10 @@ function openSketch() {
 				const mtimeCol = document.createElement('td');
 				mtimeCol.innerText = it.saveTime;
 				row.append(idCol, nameCol, mtimeCol);
+				row.addEventListener('click', () => {
+					loadSketchFromLocalStorage(it.actualName);
+					clearDialog();
+				});
 				return row;
 			})
 			.forEach(row => {
@@ -341,6 +350,15 @@ function loadSketchFromJson(json) {
 		console.error(e);
 		setStatus('Cannot load this sketch');
 	}
+}
+
+function loadSketchFromLocalStorage(name) {
+	const json = window.localStorage['_starboard_' + name];
+	if (!json) {
+		console.error(name, 'not found');
+		return;
+	}
+	loadSketchFromJson(json);
 }
 
 function run() {
