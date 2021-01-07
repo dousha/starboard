@@ -90,7 +90,6 @@ function installPortEventListeners(e, name, parentName) {
 	function elementMouseUp(event) {
 		event.preventDefault();
 		const toPortName = `${parentName}.${name}`;
-		console.debug(`Source port = ${window.sourcePort}, target port = ${toPortName}`);
 		if (window.sourcePort && window.sourcePort !== toPortName) {
 			if (!window.sketch) {
 				console.error('No sketch loaded');
@@ -135,7 +134,6 @@ function installConnectionEventListeners(e) {
 	e.addEventListener('click', click);
 
 	function hoverStart(event) {
-		console.debug(event);
 		if (event.altKey || event.shiftKey) {
 			e.style.cursor = 'crosshair';
 		} else {
@@ -144,7 +142,6 @@ function installConnectionEventListeners(e) {
 	}
 
 	function click(event) {
-		console.debug(event);
 		event.preventDefault();
 		event.stopPropagation();
 		if (event.altKey || event.shiftKey) {
@@ -198,16 +195,14 @@ function installBlockEventListeners(e, cb = (x, y) => {
 	function doubleClick(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		const id = e.querySelector('.nodule-id').innerText;
-		window.editingNoduleId = id;
+		window.editingNoduleId = e.querySelector('.nodule-id').innerText;
 		openNodulePropertyEditor();
 	}
 
 	function rightClick(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		const id = e.querySelector('.nodule-id').innerText;
-		window.editingNoduleId = id;
+		window.editingNoduleId = e.querySelector('.nodule-id').innerText;
 		showContextMenu('nodule-context-menu', event.clientX, event.clientY);
 	}
 }
@@ -415,7 +410,6 @@ function saveNoduleProperties() {
 	box.childNodes.forEach(item => {
 		const key = item.firstChild.firstChild.innerText;
 		const value = item.lastChild.firstChild.value;
-		console.debug(key, value);
 		if (key === 'id') {
 			if (window.editingNoduleId !== value) {
 				nodule.id = value;
@@ -446,7 +440,7 @@ function saveNoduleProperties() {
 }
 
 function openNodulePropertyEditor() {
-	const nodule = window.sketch.getNoduleById(id);
+	const nodule = window.sketch.getNoduleById(window.editingNoduleId);
 	const container = document.getElementById('property-list');
 	clearElement(container);
 	nodule.generatePropertyList().forEach(x => container.append(x));
@@ -455,7 +449,6 @@ function openNodulePropertyEditor() {
 
 function removeSelectedModule() {
 	hideContextMenu();
-	console.debug('removing', window.editingNoduleId);
 	if (!window.sketch) {
 		console.error('No sketch loaded');
 		return;

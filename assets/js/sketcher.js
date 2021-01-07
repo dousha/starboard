@@ -183,9 +183,9 @@ function Connection() {
 	};
 
 	this.updatePosition = function (element, fromRect, toRect) {
-		const x1 = Math.round(fromRect.x + fromRect.width / 2);
+		const x1 = Math.round(fromRect.x + fromRect.width + 2);
 		const y1 = Math.round(fromRect.y + fromRect.height / 2);
-		const x2 = Math.round(toRect.x + fromRect.width / 2);
+		const x2 = Math.round(toRect.x - 2);
 		const y2 = Math.round(toRect.y + fromRect.height / 2);
 		element.setAttribute('x1', x1.toString());
 		element.setAttribute('y1', y1.toString());
@@ -265,7 +265,7 @@ function Sketch(name) {
 			return undefined;
 		}
 		// test if source port or the target port is occupied
-		const x = this.connections.findIndex(x => (x.fromModuleId === fromParts[0] && x.fromModulePort === fromParts[1]) || (x.toModuleId === toParts[0] && x.toModulePort === toParts[1]));
+		const x = this.connections.findIndex(x => x.toModuleId === toParts[0] && x.toModulePort === toParts[1]);
 		if (x >= 0) {
 			console.error('Port already occupied');
 			return undefined;
