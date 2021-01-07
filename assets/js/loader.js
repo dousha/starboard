@@ -1,4 +1,4 @@
-function Loader(base) {
+function Loader(base, sketch) {
 	this.nodules = {};
 
 	this.load = async function () {
@@ -46,7 +46,7 @@ function Loader(base) {
 				noduleInstance.parameters[param] = paramConfig.default;
 			});
 		}
-		const nodule = new Nodule();
+		const nodule = new Nodule(sketch);
 		nodule.loadFromObject(noduleInstance);
 		return nodule;
 	};

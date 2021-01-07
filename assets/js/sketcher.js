@@ -1,4 +1,4 @@
-function Nodule() {
+function Nodule(sketch) {
 	this.id = '';
 	this.name = '';
 	this.input = [];
@@ -89,14 +89,13 @@ function Nodule() {
 	};
 
 	this.updateConnections = function () {
-		this.activeConnections.forEach(it => it.update());
+		this.activeConnections.forEach(it => {
+			sketch.updateConnection(it);
+		});
 	};
 
 	this.save = function () {
-		let out = {};
-		Object.assign(out, this);
-		out.activeConnections = out.activeConnections.map(x => x.id);
-		return out;
+		return this;
 	};
 
 	this.generatePropertyList = function () {
@@ -156,10 +155,12 @@ function Connection() {
 		shownElement.setAttribute('data-id', this.id);
 		shownElement.setAttribute('stroke', 'black');
 		shownElement.setAttribute('stroke-width', '2');
+		shownElement.classList.add('connection');
 		const hiddenElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
 		hiddenElement.setAttribute('data-id', this.id);
 		hiddenElement.setAttribute('stroke', '#00000000');
 		hiddenElement.setAttribute('stroke-width', '10');
+		hiddenElement.classList.add('connection');
 		const fromModuleDom = document.querySelector(`[data-id="${this.fromModuleId}"]`);
 		const toModuleDom = document.querySelector(`[data-id="${this.toModuleId}"]`);
 		if (fromModuleDom == null || toModuleDom == null) {
@@ -206,6 +207,7 @@ function Sketch(name) {
 	this.nodules = [];
 	this.connections = [];
 	this.name = name || 'New Sketch';
+	this.noduleCollections = [];
 
 	this.drawNodules = function () {
 		return this.nodules.map(it => it.draw());
@@ -221,7 +223,19 @@ function Sketch(name) {
 	};
 
 	this.deleteNodule = function (name) {
-		//
+		const noduleIndex = this.getNoduleIndexById(name);
+		if (noduleIndex >= 0) {
+			const nodule = this.nodules[noduleIndex];
+			const connectionsToBeDeleted = [...nodule.activeConnections]; // <- prevent concurrent modification
+			connectionsToBeDeleted.forEach(id => {
+				console.debug('deleting connection', id);
+				deleteConnectionById(id);
+			});
+			this.nodules.splice(noduleIndex, 1);
+			return true;
+		} else {
+			return false;
+		}
 	};
 
 	this.makeConnection = function (from, to) {
@@ -263,16 +277,24 @@ function Sketch(name) {
 		conn.toModuleId = toParts[0];
 		conn.toModulePort = toParts[1];
 		this.connections.push(conn);
-		fromNodule.activeConnections.push(conn);
-		toNodule.activeConnections.push(conn);
+		fromNodule.activeConnections.push(conn.id);
+		toNodule.activeConnections.push(conn.id);
 		return conn;
+	};
+
+	this.updateConnection = function (id) {
+		const connectionIndex = this.connections.findIndex(x => x.id === id);
+		if (connectionIndex >= 0) {
+			const connection = this.connections[connectionIndex];
+			connection.update();
+		}
 	};
 
 	this.breakConnection = function (id) {
 		const connectionIndex = this.connections.findIndex(x => x.id === id);
 		if (connectionIndex < 0) {
 			console.error(id, 'does not exist');
-			return true;
+			return false;
 		} else {
 			const connection = this.connections[connectionIndex];
 			const fromModuleIndex = this.nodules.findIndex(x => x.id === connection.fromModuleId);
@@ -296,7 +318,7 @@ function Sketch(name) {
 		if ('nodules' in obj && 'connections' in obj) {
 			Object.assign(this, obj);
 			this.nodules = this.nodules.map(it => {
-				const nodule = new Nodule();
+				const nodule = new Nodule(this);
 				nodule.loadFromObject(it);
 				return nodule;
 			});
@@ -336,7 +358,6 @@ function Sketch(name) {
 			}).reduce((a, v) => {
 				return a + `"${v.sinkPort}":${v.expr}["${v.sourcePort}"],`;
 			}, '');
-			console.debug(tween);
 			return `${initial}({${tween}},${params})`;
 		}
 	};
@@ -346,8 +367,12 @@ function Sketch(name) {
 		eval(output); // yeet, this is like, fucked up terribly
 	};
 
+	this.getNoduleIndexById = function (id) {
+		return this.nodules.findIndex(x => x.id === id);
+	};
+
 	this.getNoduleById = function (id) {
-		const index = this.nodules.findIndex(x => x.id === id);
+		const index = this.getNoduleIndexById(id);
 		return this.nodules[index];
 	};
 
@@ -374,7 +399,7 @@ Sketch.fromJSON = function (str) {
 Nodule.fromJSON = function (str) {
 	try {
 		const obj = JSON.parse(str);
-		const nodule = new Nodule();
+		const nodule = new Nodule(this);
 		nodule.loadFromObject(obj);
 		return nodule;
 	} catch (e) {

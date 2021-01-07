@@ -192,6 +192,10 @@ body {
 	padding: 0;
 }
 
+.connection {
+	pointer-events: all;
+}
+
 .context-menu {
 	position: absolute;
 	max-width: 30em;

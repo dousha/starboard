@@ -135,7 +135,8 @@ function installConnectionEventListeners(e) {
 	e.addEventListener('click', click);
 
 	function hoverStart(event) {
-		if (event.altKey) {
+		console.debug(event);
+		if (event.altKey || event.shiftKey) {
 			e.style.cursor = 'crosshair';
 		} else {
 			e.style.cursor = 'auto';
@@ -143,13 +144,12 @@ function installConnectionEventListeners(e) {
 	}
 
 	function click(event) {
+		console.debug(event);
 		event.preventDefault();
 		event.stopPropagation();
-		if (event.altKey) {
+		if (event.altKey || event.shiftKey) {
 			const id = e.getAttribute('data-id');
-			if (window.sketch.breakConnection(id)) {
-				document.querySelectorAll(`[data-id="${id}"]`).forEach(it => it.remove());
-			}
+			deleteConnectionById(id);
 		}
 	}
 }
@@ -200,16 +200,14 @@ function installBlockEventListeners(e, cb = (x, y) => {
 		event.stopPropagation();
 		const id = e.querySelector('.nodule-id').innerText;
 		window.editingNoduleId = id;
-		const nodule = window.sketch.getNoduleById(id);
-		const container = document.getElementById('property-list');
-		clearElement(container);
-		nodule.generatePropertyList().forEach(x => container.append(x));
-		showDialog('dialog-nodule-edit');
+		openNodulePropertyEditor();
 	}
 
 	function rightClick(event) {
 		event.preventDefault();
 		event.stopPropagation();
+		const id = e.querySelector('.nodule-id').innerText;
+		window.editingNoduleId = id;
 		showContextMenu('nodule-context-menu', event.clientX, event.clientY);
 	}
 }
@@ -247,6 +245,12 @@ function appendConnection(xs) {
 	xs.forEach(x => {
 		document.getElementById('line-container').appendChild(x);
 	});
+}
+
+function deleteConnectionById(id) {
+	if (window.sketch.breakConnection(id)) {
+		document.querySelectorAll(`[data-id="${id}"]`).forEach(it => it.remove());
+	}
 }
 
 function newSketch() {
@@ -439,4 +443,24 @@ function saveNoduleProperties() {
 		noduleElement.querySelector('.nodule-parameters').innerText = nodule.getParamString();
 	});
 	clearDialog();
+}
+
+function openNodulePropertyEditor() {
+	const nodule = window.sketch.getNoduleById(id);
+	const container = document.getElementById('property-list');
+	clearElement(container);
+	nodule.generatePropertyList().forEach(x => container.append(x));
+	showDialog('dialog-nodule-edit');
+}
+
+function removeSelectedModule() {
+	hideContextMenu();
+	console.debug('removing', window.editingNoduleId);
+	if (!window.sketch) {
+		console.error('No sketch loaded');
+		return;
+	}
+	if (window.sketch.deleteNodule(window.editingNoduleId)) {
+		document.querySelector(`[data-id="${window.editingNoduleId}"]`).parentElement.remove();
+	}
 }
