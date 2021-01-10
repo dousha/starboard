@@ -288,3 +288,57 @@ body {
 .nodule-wrapper:hover {
 	background-color: #ddd;
 }
+
+.nodule-list-label-wrapper {
+	display: flex;
+	flex-flow: row;
+	align-items: center;
+}
+
+.nodule-list-label {
+	color: #777;
+	font-size: 60%;
+	font-family: 'JetBrains Mono', 'Consolas', 'Courier New', Courier, monospace;
+	margin: 0.5em 0;
+}
+
+.nodule-list-label-splitter {
+	flex-grow: 1;
+	margin-left: 0.5em;
+}
+
+.spacer {
+	width: 1em;
+}
+
+.menu {
+	display: none;
+	position: absolute;
+	z-index: 1000000;
+	background-color: white;
+	border: 1px solid gray;
+	tab-index: -1;
+}
+
+.menu-items {
+	margin: 0;
+	padding: 0;
+}
+
+.menu-item {
+	list-style: none;
+	margin-left: 0;
+	cursor: default;
+	padding: 0.2em 0.5em;
+}
+
+.menu-item:hover {
+	background-color: #eee;
+}
+
+.menu-item-splitter {
+	list-style: none;
+	height: 1px;
+	background-color: gray;
+	pointer-events: none;
+}

@@ -30,6 +30,15 @@ window.addEventListener('load', () => {
 		window.contextMenuX = e.clientX;
 		window.contextMenuY = e.clientY;
 	});
+	document.querySelectorAll('.menu').forEach(menu => {
+		menu.setAttribute('tabindex', '-1');
+		menu.addEventListener('blur', () => {
+			closeMenu();
+		});
+	});
+	document.querySelectorAll('.dialog').forEach(dialog => {
+		dialog.setAttribute('tabindex', '-1');
+	});
 	writeConsole('Ready\n');
 });
 
@@ -287,7 +296,7 @@ function sketchSaveWorker() {
 	const sketchDescriptor = {
 		name: sketch.name,
 		saveTime: (new Date()).toString(),
-		actualName: randomName()
+		actualName: window.sketchActualName ? window.sketchActualName : randomName()
 	};
 	const glob = JSON.stringify(sketch);
 	const descriptorGlob = JSON.stringify(sketchDescriptor);
@@ -319,6 +328,7 @@ function openSketch() {
 				mtimeCol.innerText = it.saveTime;
 				row.append(idCol, nameCol, mtimeCol);
 				row.addEventListener('click', () => {
+					window.sketchActualName = it.actualName;
 					loadSketchFromLocalStorage(it.actualName);
 					clearDialog();
 				});
@@ -333,12 +343,20 @@ function openSketch() {
 	}
 }
 
+function openSketchFromUrl() {
+	// TODO
+}
+
 function loadSketch(sketch) {
 	window.sketch = sketch;
 	window.sketchNamed = true;
 	setTitle(sketch.name);
 	setBoard(sketch.drawNodules());
 	setConnections(sketch.drawConnections());
+}
+
+function reloadSketch() {
+	// TODO
 }
 
 function loadSketchFromJson(json) {
@@ -392,6 +410,7 @@ function showDialog(name) {
 	}
 	dialog.style.display = 'flex';
 	hideContextMenu();
+	dialog.focus();
 }
 
 function clearDialog() {
@@ -456,4 +475,20 @@ function removeSelectedModule() {
 	if (window.sketch.deleteNodule(window.editingNoduleId)) {
 		document.querySelector(`[data-id="${window.editingNoduleId}"]`).parentElement.remove();
 	}
+}
+
+function openMenu(name, parent) {
+	const menu = document.getElementById(name);
+	const rect = parent.getClientRects()[0];
+	if (!rect || !menu) {
+		return;
+	}
+	menu.style.top = `${rect.y + rect.height}px`;
+	menu.style.left = `${rect.x}px`;
+	show(menu);
+	menu.focus();
+}
+
+function closeMenu() {
+	document.querySelectorAll('.menu').forEach(it => it.style.display = 'none');
 }

@@ -6,7 +6,7 @@ function Loader(base, sketch) {
 		const items = JSON.parse(index);
 		const loadingNodules = await Promise.all(items.map(it => loadDataPromise(`${base}/${it}`).then(x => JSON.parse(x))));
 		await Promise.all(loadingNodules
-			.filter(it => 'checksum' in it && 'nodules' in it && 'script' in it)
+			.filter(it => 'name' in it && 'checksum' in it && 'nodules' in it && 'script' in it)
 			.map(async (it) => {
 				const script = (await loadDataPromise(`${base}/${it.script}`)).replace(/[\r\n]/gmi, '');
 				const encoder = new TextEncoder();
@@ -16,13 +16,14 @@ function Loader(base, sketch) {
 				if (it.checksum.toLowerCase().trim() !== digestText.toLowerCase().trim()) {
 					console.error('Checksum mismatch, expected', it.checksum, 'actual', digestText);
 				} else {
+					console.debug('Loading', it.name);
 					(1, eval)(script);
 					it.nodules.forEach(nodule => {
 						this.nodules[nodule.name] = nodule;
 					});
+					this.populateNoduleList(it.name, it.nodules);
 				}
 			}));
-		this.populateNoduleList();
 	};
 
 	this.createNodule = function (name, x, y) {
@@ -51,14 +52,23 @@ function Loader(base, sketch) {
 		return nodule;
 	};
 
-	this.populateNoduleList = function () {
+	this.populateNoduleList = function (groupName, nodules) {
 		const container = document.getElementById('nodule-list');
-		Object.keys(this.nodules).forEach(it => {
+		const labelWrapper = document.createElement('div');
+		labelWrapper.classList.add('nodule-list-label-wrapper')
+		const label = document.createElement('span');
+		label.innerText = groupName;
+		label.classList.add('nodule-list-label');
+		const hr = document.createElement('hr');
+		hr.classList.add('nodule-list-label-splitter');
+		labelWrapper.append(label, hr);
+		container.append(labelWrapper);
+		nodules.forEach(it => {
 			const wrapper = document.createElement('div');
 			wrapper.classList.add('nodule-wrapper');
 			// TODO: maybe a better one
 			const name = document.createElement('span');
-			name.innerText = it;
+			name.innerText = it.name;
 			wrapper.append(name);
 			wrapper.addEventListener('click', e => {
 				e.preventDefault();
@@ -67,7 +77,7 @@ function Loader(base, sketch) {
 					console.error('No sketch loaded');
 					return;
 				}
-				const nodule = this.createNodule(it, window.contextMenuX, window.contextMenuY);
+				const nodule = this.createNodule(it.name, window.contextMenuX, window.contextMenuY);
 				window.sketch.addNodule(nodule);
 				clearDialog();
 			});

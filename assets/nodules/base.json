@@ -1,4 +1,5 @@
 {
+	"name": "Intrinsics",
 	"script": "intrinsic.js",
 	"checksum": "79ae9f2409444c60629ed30b8873cf8bc702f10a4ed5f56d4291a69f3fb25440",
 	"nodules": [

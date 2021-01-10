@@ -19,10 +19,11 @@
 			<span id="title">Title</span>
 		</div>
 		<div class="vertical-wrapper toolbar">
-			<button onclick="newSketch()">New</button>
-			<button onclick="openSketch()">Open</button>
-			<button onclick="saveSketch()">Save</button>
+			<button onclick="openMenu('file-menu', this)">File</button>
+			<span class="spacer"></span>
 			<button onclick="run()">Run</button>
+			<span class="spacer"></span>
+			<button onclick="">Help</button>
 		</div>
 		<div class="vertical-wrapper">
 			<span id="status"></span>
@@ -83,6 +84,20 @@
 		<button onclick="clearDialog()">Cancel</button>
 	</div>
 </div>
+<div class="dialog" id="dialog-open-url">
+	<div class="dialog-bar">
+		<span class="dialog-title">Open sketch from URL</span>
+	</div>
+	<div class="dialog-content">
+		<label for="open-url">URL</label>
+		<input id="open-url">
+		<span>Opening untrusted sketch may compromise your computer!</span>
+	</div>
+	<div class="dialog-action">
+		<button onclick="clearDialog()">Cancel</button>
+		<button onclick="openSketchFromUrl()">Open</button>
+	</div>
+</div>
 <div class="dialog" id="dialog-save">
 	<div class="dialog-bar">
 		<span class="dialog-title">Save sketch</span>
@@ -94,6 +109,20 @@
 	<div class="dialog-action">
 		<button onclick="clearDialog()">Cancel</button>
 		<button onclick="saveSketchWithName()">Save</button>
+	</div>
+</div>
+<div class="dialog" id="dialog-import"></div>
+<div class="dialog" id="dialog-export"></div>
+<div class="dialog" id="dialog-reload">
+	<div class="dialog-bar">
+		<span class="dialog-title">Force reloading sketch</span>
+	</div>
+	<div class="dialog-content">
+		<span>Reloading the sketch and fetch resources may take a while.</span>
+	</div>
+	<div class="dialog-action">
+		<button onclick="clearDialog()">Cancel</button>
+		<button onclick="reloadSketch()">Reload</button>
 	</div>
 </div>
 <div class="dialog" id="dialog-add">
@@ -118,6 +147,21 @@
 		<button onclick="clearDialog()">Cancel</button>
 		<button onclick="saveNoduleProperties()">Save</button>
 	</div>
+</div>
+<div class="menu" id="file-menu">
+	<ul class="menu-items">
+		<li class="menu-item" onclick="newSketch()">New (^n)</li>
+		<li class="menu-item" onclick="openSketch()">Open (^o)</li>
+		<li class="menu-item" onclick="showDialog('dialog-open-url')">Open from URL</li>
+		<li class="menu-item" onclick="saveSketch()">Save (^s)</li>
+		<li class="menu-item-splitter"></li>
+		<li class="menu-item" onclick="showDialog('dialog-import')">Import</li>
+		<li class="menu-item" onclick="showDialog('dialog-export')">Export</li>
+		<li class="menu-item-splitter"></li>
+		<li class="menu-item" onclick="showDialog('dialog-reload')">Force reload</li>
+		<li class="menu-item-splitter"></li>
+		<li class="menu-item" onclick="alert('TODO')">Sketch properties</li>
+	</ul>
 </div>
 </body>
 
