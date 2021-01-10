@@ -4,6 +4,26 @@ function clearElement(x) {
 	}
 }
 
+function disable(x) {
+	x.setAttribute('disabled', '1');
+}
+
+function enable(x) {
+	x.removeAttribute('disabled');
+}
+
+function disableAllButtonsIn(x) {
+	x.querySelectorAll('button').forEach(btn => {
+		disable(btn);
+	});
+}
+
+function enableAllButtonsIn(x) {
+	x.querySelectorAll('button').forEach(btn => {
+		enable(btn);
+	});
+}
+
 function randomName(length = 8) {
 	let out = '';
 	for (let i = 0; i < length; i++) {

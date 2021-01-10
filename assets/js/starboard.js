@@ -339,12 +339,22 @@ function openSketch() {
 			});
 		showDialog('dialog-open');
 	} else {
-		// TODO
+		showDialog('dialog-import');
 	}
 }
 
 function openSketchFromUrl() {
-	// TODO
+	const div = document.getElementById('dialog-open-url').querySelector('.dialog-action');
+	disableAllButtonsIn(div);
+	const url = document.getElementById('open-url').value;
+	if (url.trim().length > 0) {
+		Sketch.fromRemote(url).then(sketch => {
+			loadSketch(sketch);
+			clearDialog();
+		}).finally(() => {
+			enableAllButtonsIn(div);
+		});
+	}
 }
 
 function loadSketch(sketch) {
@@ -380,7 +390,9 @@ function loadSketchFromLocalStorage(name) {
 
 function run() {
 	if (window.sketch) {
+		writeConsole(`[${(new Date()).toLocaleString()}] Starting...\n`);
 		window.sketch.run();
+		writeConsole(`\n[${(new Date()).toLocaleString()}] Done\n`);
 	} else {
 		console.error('No sketch is loaded');
 	}
@@ -458,6 +470,22 @@ function saveNoduleProperties() {
 	clearDialog();
 }
 
+function openSketchPropertyEditor() {
+	// TODO
+	showDialog('sketch-edit');
+}
+
+function saveSketchProperties() {
+	// TODO
+}
+
+function openSketchExportDialog() {
+	if (window.sketch) {
+		document.getElementById('export').value = JSON.stringify(window.sketch.toObject());
+	}
+	showDialog('dialog-export');
+}
+
 function openNodulePropertyEditor() {
 	const nodule = window.sketch.getNoduleById(window.editingNoduleId);
 	const container = document.getElementById('property-list');
@@ -474,6 +502,14 @@ function removeSelectedModule() {
 	}
 	if (window.sketch.deleteNodule(window.editingNoduleId)) {
 		document.querySelector(`[data-id="${window.editingNoduleId}"]`).parentElement.remove();
+	}
+}
+
+function importSketch() {
+	const stuff = document.getElementById('import').value;
+	const sketch = Sketch.fromJSON(stuff);
+	if (sketch) {
+		loadSketch(sketch);
 	}
 }
 

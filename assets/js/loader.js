@@ -1,7 +1,48 @@
-function Loader(base, sketch) {
-	this.nodules = {};
+class Loader {
+	constructor(xs, sketch) {
+		this.nodules = {};
+		this._sketch = sketch;
+		this._xs = xs;
+	}
 
-	this.load = async function () {
+	createNodule(name, x, y) {
+		const nodulePrototype = this.nodules[name];
+		// everything else is fine, we just need to allocate a new name
+		if (!window.sketch) {
+			console.error('No sketch loaded');
+			return;
+		}
+		const namePrefix = name.toLowerCase();
+		const namePostfix = window.sketch.nodules.filter(x => x.id.startsWith(namePrefix)).length + 1;
+		const noduleInstance = {...nodulePrototype};
+		noduleInstance['x'] = x;
+		noduleInstance['y'] = y;
+		noduleInstance['id'] = `${namePrefix}-${namePostfix}`;
+		noduleInstance.parameters = Object.create({});
+		if (nodulePrototype.parameters) {
+			noduleInstance['paramTypes'] = nodulePrototype.parameters;
+			Object.keys(nodulePrototype.parameters).forEach(param => {
+				const paramConfig = nodulePrototype.parameters[param];
+				noduleInstance.parameters[param] = paramConfig.default;
+			});
+		}
+		const nodule = new Nodule(this._sketch);
+		nodule.loadFromObject(noduleInstance);
+		return nodule;
+	}
+
+	async load() {
+		for (let x of this._xs) {
+			try {
+				await this._load(x);
+			} catch (e) {
+				console.error('Cannot load from', x);
+				console.error(e);
+			}
+		}
+	}
+
+	async _load(base) {
 		const index = await loadDataPromise(`${base}/index.json`);
 		const items = JSON.parse(index);
 		const loadingNodules = await Promise.all(items.map(it => loadDataPromise(`${base}/${it}`).then(x => JSON.parse(x))));
@@ -24,35 +65,9 @@ function Loader(base, sketch) {
 					this.populateNoduleList(it.name, it.nodules);
 				}
 			}));
-	};
+	}
 
-	this.createNodule = function (name, x, y) {
-		const nodulePrototype = this.nodules[name];
-		// everything else is fine, we just need to allocate a new name
-		if (!window.sketch) {
-			console.error('No sketch loaded');
-			return;
-		}
-		const namePrefix = name.toLowerCase();
-		const namePostfix = window.sketch.nodules.filter(x => x.id.startsWith(namePrefix)).length + 1;
-		const noduleInstance = {...nodulePrototype};
-		noduleInstance['x'] = x;
-		noduleInstance['y'] = y;
-		noduleInstance['id'] = `${namePrefix}-${namePostfix}`;
-		noduleInstance.parameters = Object.create({});
-		if (nodulePrototype.parameters) {
-			noduleInstance['paramTypes'] = nodulePrototype.parameters;
-			Object.keys(nodulePrototype.parameters).forEach(param => {
-				const paramConfig = nodulePrototype.parameters[param];
-				noduleInstance.parameters[param] = paramConfig.default;
-			});
-		}
-		const nodule = new Nodule(sketch);
-		nodule.loadFromObject(noduleInstance);
-		return nodule;
-	};
-
-	this.populateNoduleList = function (groupName, nodules) {
+	populateNoduleList(groupName, nodules) {
 		const container = document.getElementById('nodule-list');
 		const labelWrapper = document.createElement('div');
 		labelWrapper.classList.add('nodule-list-label-wrapper')
@@ -83,5 +98,5 @@ function Loader(base, sketch) {
 			});
 			container.append(wrapper);
 		});
-	};
+	}
 }

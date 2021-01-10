@@ -54,6 +54,7 @@ function Nodule(sketch) {
 		const outerBox = document.createElement('div');
 		outerBox.classList.add('grip');
 		outerBox.classList.add('block');
+		outerBox.setAttribute('tabindex', '-1');
 		const leftHandle = document.createElement('div');
 		leftHandle.classList.add('nodule-handle');
 		const rightHandle = document.createElement('div');
@@ -207,7 +208,12 @@ function Sketch(name) {
 	this.nodules = [];
 	this.connections = [];
 	this.name = name || 'New Sketch';
-	this.noduleCollections = [];
+	this.noduleCollections = ['./assets/nodules'];
+
+	this.loadNoduleRepo = function () {
+		const loader = new Loader(this.noduleCollections, this);
+		return loader.load();
+	};
 
 	this.drawNodules = function () {
 		return this.nodules.map(it => it.draw());
@@ -315,7 +321,7 @@ function Sketch(name) {
 	};
 
 	this.loadFromObject = function (obj) {
-		if ('nodules' in obj && 'connections' in obj) {
+		if ('nodules' in obj && 'connections' in obj && 'name' in obj && 'noduleCollections' in obj) {
 			Object.assign(this, obj);
 			this.nodules = this.nodules.map(it => {
 				const nodule = new Nodule(this);
@@ -394,6 +400,10 @@ Sketch.fromJSON = function (str) {
 	} catch (e) {
 		console.error(e);
 	}
+};
+
+Sketch.fromRemote = function (url) {
+	return loadDataPromise(url).then(data => Sketch.fromJSON(data));
 };
 
 Nodule.fromJSON = function (str) {

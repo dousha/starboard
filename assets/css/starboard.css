@@ -253,6 +253,8 @@ body {
 	flex-flow: column;
 	align-items: stretch;
 	padding: 0.5em 1em;
+	max-height: 45vh;
+	overflow-y: auto;
 }
 
 .dialog-title {
@@ -341,4 +343,8 @@ body {
 	height: 1px;
 	background-color: gray;
 	pointer-events: none;
+}
+
+.fine-text {
+	font-size: 8px;
 }
