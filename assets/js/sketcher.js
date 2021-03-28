@@ -152,16 +152,12 @@ function Connection() {
 	};
 
 	this.draw = function () {
-		const shownElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		const shownElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		shownElement.setAttribute('data-id', this.id);
-		shownElement.setAttribute('stroke', 'black');
-		shownElement.setAttribute('stroke-width', '2');
 		shownElement.classList.add('connection');
-		const hiddenElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		const hiddenElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		hiddenElement.setAttribute('data-id', this.id);
-		hiddenElement.setAttribute('stroke', '#00000000');
-		hiddenElement.setAttribute('stroke-width', '10');
-		hiddenElement.classList.add('connection');
+		hiddenElement.classList.add('connection-event');
 		const fromModuleDom = document.querySelector(`[data-id="${this.fromModuleId}"]`);
 		const toModuleDom = document.querySelector(`[data-id="${this.toModuleId}"]`);
 		if (fromModuleDom == null || toModuleDom == null) {
@@ -188,10 +184,12 @@ function Connection() {
 		const y1 = Math.round(fromRect.y + fromRect.height / 2);
 		const x2 = Math.round(toRect.x - 2);
 		const y2 = Math.round(toRect.y + fromRect.height / 2);
-		element.setAttribute('x1', x1.toString());
-		element.setAttribute('y1', y1.toString());
-		element.setAttribute('x2', x2.toString());
-		element.setAttribute('y2', y2.toString());
+		const diff = Math.min(500, Math.max(40, -4 * (x2 - x1)));
+		element.setAttribute('d', `M ${x1} ${y1} C ${x1 + diff} ${y1}, ${x2 - diff} ${y2}, ${x2} ${y2}`);
+		// element.setAttribute('x1', x1.toString());
+		// element.setAttribute('y1', y1.toString());
+		// element.setAttribute('x2', x2.toString());
+		// element.setAttribute('y2', y2.toString());
 	};
 
 	this.save = function () {

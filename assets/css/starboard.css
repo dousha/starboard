@@ -75,7 +75,6 @@ body {
 .board {
 	width: 100vw;
 	flex-grow: 1;
-	z-index: 1;
 }
 
 .block {
@@ -85,11 +84,11 @@ body {
 	border: 1px solid black;
 	box-shadow: 3px 3px #0007;
 	cursor: grab;
-	z-index: 1;
 	min-width: 100px;
 	min-height: 70px;
 	background-color: white;
 	user-select: none;
+	tab-index: -1;
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
@@ -196,6 +195,18 @@ body {
 
 .connection {
 	pointer-events: all;
+	fill: transparent;
+	stroke: black;
+	stroke-width: 2;
+	tab-index: -1;
+}
+
+.connection-event {
+	pointer-events: all;
+	fill: transparent;
+	stroke: transparent;
+	stroke-width: 10;
+	tab-index: -1;
 }
 
 .context-menu {
