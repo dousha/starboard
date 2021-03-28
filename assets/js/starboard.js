@@ -1,15 +1,37 @@
 window.addEventListener('load', () => {
 	console.log('Load');
+	if (localStorage['console-height']) {
+		document.getElementById('console').style['height'] = localStorage['console-height'];
+	}
 	const consoleBoard = document.getElementById('console');
 	const consoleFold = document.getElementById('console-fold');
 	const consoleExpand = document.getElementById('console-expand');
 	hide(document.getElementById('console-expand'));
-	consoleFold.addEventListener('click', e => {
-		e.preventDefault();
+	consoleFold.addEventListener('mousedown', e => {
+		window.foldDragging = true;
+		window.foldDragged = false;
 		e.stopPropagation();
-		hide(consoleBoard);
-		hide(consoleFold);
-		show(consoleExpand);
+		e.preventDefault();
+	});
+	consoleFold.addEventListener('mouseup', e => {
+		window.foldDragging = false;
+		if (!window.foldDragged) {
+			e.preventDefault();
+			e.stopPropagation();
+			hide(consoleBoard);
+			hide(consoleFold);
+			show(consoleExpand);
+		}
+	});
+	window.addEventListener('mousemove', e => {
+		if (window.foldDragging) {
+			e.preventDefault();
+			e.stopPropagation();
+			window.foldDragged = true;
+			const height = window.innerHeight - e.clientY;
+			localStorage['console-height'] = `${height}px`;
+			resizeConsole(height);
+		}
 	});
 	consoleExpand.addEventListener('click', e => {
 		e.preventDefault();
@@ -48,6 +70,11 @@ function hide(e) {
 
 function show(e) {
 	e.style.display = 'block';
+}
+
+function resizeConsole(height) {
+	const box = document.getElementById('console');
+	box.style.height = `${height}px`;
 }
 
 function installPortEventListeners(e, name, parentName) {
@@ -160,7 +187,7 @@ function installConnectionEventListeners(e) {
 	}
 }
 
-function installBlockEventListeners(e, cb = (x, y) => {
+function installBlockEventListeners(e, cb = () => {
 }) {
 	let dX = 0, dY = 0, lastX = 0, lastY = 0;
 

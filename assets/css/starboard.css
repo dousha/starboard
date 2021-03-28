@@ -4,6 +4,13 @@ body {
 	overflow: hidden;
 }
 
+pre {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	word-break: normal;
+	overflow-wrap: anywhere;
+}
+
 .wrapper {
 	display: flex;
 	height: 100vh;
@@ -53,7 +60,8 @@ body {
 	height: 0.5em;
 	background: whitesmoke;
 	border-bottom: 1px solid black;
-	z-index: 999998;
+	tab-index: -1;
+	cursor: ns-resize;
 }
 
 .console-expand {
