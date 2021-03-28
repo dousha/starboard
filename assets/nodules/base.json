@@ -1,7 +1,7 @@
 {
 	"name": "Intrinsics",
 	"script": "intrinsic.js",
-	"checksum": "79ae9f2409444c60629ed30b8873cf8bc702f10a4ed5f56d4291a69f3fb25440",
+	"checksum": "04066d9e48e5cd87ba17d9fcce6c675fcf36ca2c32cfb48db090c1c5c7e98526",
 	"nodules": [
 		{
 			"name": "Constant",
@@ -59,6 +59,40 @@
 		},
 		{
 			"name": "Negate",
+			"input": [
+				{
+					"name": "x",
+					"type": "number"
+				}
+			],
+			"output": [
+				{
+					"name": "v",
+					"type": "number"
+				}
+			]
+		},
+		{
+			"name": "Multiply",
+			"input": [
+				{
+					"name": "x",
+					"type": "number"
+				},
+				{
+					"name": "y",
+					"type": "number"
+				}
+			],
+			"output": [
+				{
+					"name": "v",
+					"type": "number"
+				}
+			]
+		},
+		{
+			"name": "Reciprocal",
 			"input": [
 				{
 					"name": "x",

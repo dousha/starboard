@@ -35,3 +35,19 @@ function Negate(inputs) {
 		};
 	}
 }
+
+function Multiply(inputs) {
+	if ('x' in inputs && 'y' in inputs) {
+		return {
+			v: inputs['x'] * inputs['y']
+		}
+	}
+}
+
+function Reciprocal(inputs) {
+	if ('x' in inputs) {
+		return {
+			v: 1 / inputs['x']
+		}
+	}
+}
