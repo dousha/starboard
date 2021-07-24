@@ -1,0 +1,119 @@
+{
+	"name": "Signal",
+	"script": "signal.js",
+	"checksum": "9d676461955d5c2d12f377715295cc523007f0567b7ff566b2d5f53e199541c8",
+	"nodules": [
+		{
+			"name": "Time",
+			"input": [],
+			"output": [
+				{
+					"name": "t",
+					"type": "array"
+				}
+			],
+			"parameters": {
+				"from": {
+					"default": 0,
+					"type": "number"
+				},
+				"to": {
+					"default": 5,
+					"type": "number"
+				},
+				"tick": {
+					"default": 0.01,
+					"type": "number"
+				}
+			}
+		},
+		{
+			"name": "ConstantSignal",
+			"input": [
+				{
+					"name": "t",
+					"type": "array"
+				}
+			],
+			"output": [
+				{
+					"name": "v",
+					"type": "array"
+				}
+			],
+			"parameters": {
+				"v": {
+					"type": "number",
+					"default": 1
+				}
+			}
+		},
+		{
+			"name": "CosineWave",
+			"input": [
+				{
+					"name": "t",
+					"type": "array"
+				}
+			],
+			"output": [
+				{
+					"name": "v",
+					"type": "array"
+				}
+			],
+			"parameters": {
+				"A": {
+					"name": "A",
+					"type": "number",
+					"default": 1
+				},
+				"omega": {
+					"name": "omega",
+					"type": "number",
+					"default": 1
+				},
+				"phi": {
+					"name": "phi",
+					"type": "number",
+					"default": 0
+				}
+			}
+		},
+		{
+			"name": "Mixer",
+			"input": [
+				{
+					"name": "xs",
+					"type": "array"
+				},
+				{
+					"name": "ys",
+					"type": "array"
+				}
+			],
+			"output": [
+				{
+					"name": "v",
+					"type": "array"
+				}
+			],
+			"parameters": {}
+		},
+		{
+			"name": "Plot",
+			"input": [
+				{
+					"name": "t",
+					"type": "array"
+				},
+				{
+					"name": "v",
+					"type": "array"
+				}
+			],
+			"output": [],
+			"parameters": {}
+		}
+	]
+}

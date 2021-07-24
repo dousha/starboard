@@ -49,3 +49,13 @@ function loadDataPromise(url, method = 'GET') {
 		req.send();
 	})
 }
+
+function openPlotterWindow(xName, yName) {
+	window.plotterWindow = window.open(`plot.html?x=${xName}&y=${yName}`, "Plot", "innerHeight=200,innerWidth=300");
+}
+
+function closePlotterWindow() {
+	if (window.plotterWindow) {
+		window.plotterWindow.close();
+	}
+}
